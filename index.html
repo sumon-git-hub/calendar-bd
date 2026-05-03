@@ -16,7 +16,7 @@
         .clock-pill { background: rgba(255,255,255,0.15); display: inline-block; padding: 8px 30px; border-radius: 50px; font-size: 22px; margin-top: 15px; font-family: 'Poppins', sans-serif; font-weight: 600; }
         .menu-btn { position: absolute; top: 25px; right: 20px; cursor: pointer; font-size: 24px; color: white; }
         .admin-dropdown { display: none; position: absolute; top: 60px; right: 20px; background: #1e293b; color: white; padding: 15px; border-radius: 12px; z-index: 50; width: 160px; box-shadow: 0 10px 15px rgba(0,0,0,0.2); }
-        .date-display { padding: 30px 20px; text-align: center; border-bottom: 1px solid #f1f5f9; }
+        .date-display { padding: 30px 20px; text-align: center; border-bottom: 1px solid #f1f5f9; min-height: 180px; }
         .date-row { font-size: 20px; font-weight: 600; color: #334155; margin: 10px 0; }
         .eng-num { font-family: 'Poppins', sans-serif; }
         .calendar-nav { display: flex; justify-content: space-between; align-items: center; padding: 20px; }
@@ -24,7 +24,7 @@
         .nav-btn { background: #f8fafc; border: 1px solid #e2e8f0; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 20px; }
         .grid-7 { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; padding: 0 15px; }
         .weekday { text-align: center; font-weight: bold; font-size: 14px; color: #94a3b8; padding-bottom: 15px; font-family: 'Poppins', sans-serif; }
-        .day-cell { height: 65px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9; cursor: pointer; }
+        .day-cell { height: 65px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9; }
         .num-main { font-size: 19px; font-weight: 700; color: #1e293b; font-family: 'Poppins', sans-serif; }
         .num-sub { font-size: 10px; color: #64748b; margin-top: 2px; font-family: 'Poppins', sans-serif; }
         .today-mark { background: #2563eb !important; border: none; }
@@ -32,8 +32,6 @@
         .friday-text { color: #ef4444 !important; }
         .red-star { color: #ef4444; font-weight: bold; }
         .footer-note { text-align: center; color: #ef4444; font-weight: 600; font-size: 14px; padding: 20px 10px; }
-        #detailModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: white; width: 100%; max-width: 350px; border-radius: 20px; padding: 25px; text-align: center; }
     </style>
 </head>
 <body>
@@ -55,7 +53,7 @@
         </div>
 
         <div class="date-display">
-            <h2 id="topDayName" class="text-2xl font-bold text-emerald-800 mb-4"></h2>
+            <h2 id="topDayName" class="text-2xl font-bold text-emerald-800 mb-4">লোড হচ্ছে...</h2>
             <div id="topEng" class="date-row eng-num"></div>
             <div id="topHijri" class="date-row"></div>
             <div id="topBangla" class="date-row"></div>
@@ -83,7 +81,7 @@
         const db = firebase.database();
 
         let currentYear = 2026;
-        let currentMonth = 4; 
+        let currentMonth = 4; // May
         let hijriAdjustment = 0;
         let isAdmin = false;
 
@@ -127,32 +125,31 @@
 
             for (let i = 0; i < startPos; i++) grid.innerHTML += '<div></div>';
 
-            const baseDate = new Date(2026, 4, 3);
+            const baseDate = new Date(2026, 4, 3); // ৩ মে ২০২৬ বেস
             
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateObj = new Date(year, month, day);
                 const diffDays = Math.floor((dateObj - baseDate) / (1000*60*60*24));
                 
-                // হিজরি লজিক: ২৯ দিন পর পর মাস বদলায়
-                // কিন্তু যখন ১ যোগ করা হবে, তখন ১ তারিখ হবে ৩০
-                let rawTotal = diffDays + 14 + hijriAdjustment;
+                // আরবি ক্যালকুলেশন
+                // ২৯ দিন পর পর মাস পরিবর্তন, কিন্তু ১ যোগ করলে ১ তারিখ ৩০ হবে
+                let hTotal = diffDays + 14 + hijriAdjustment;
                 let hMonthIdx = 0;
                 
-                // ডিফল্ট ২৯ দিনের মাস গণনা
-                while (rawTotal > 29) { rawTotal -= 29; hMonthIdx = (hMonthIdx + 1) % 12; }
-                while (rawTotal <= 0) { hMonthIdx = (hMonthIdx - 1 + 12) % 12; rawTotal += 29; }
+                // ২৯ দিনের বেস সাইকেল
+                while (hTotal > 29) { hTotal -= 29; hMonthIdx = (hMonthIdx + 1) % 12; }
+                while (hTotal <= 0) { hMonthIdx = (hMonthIdx - 1 + 12) % 12; hTotal += 29; }
 
-                let finalHDate = rawTotal;
+                let finalHDate = hTotal;
                 let finalHMonthIdx = hMonthIdx;
 
-                // --- আপনার দেওয়া শর্ত ---
-                // যখন সমন্বয় থাকবে এবং ১ তারিখ আসার কথা, তখন সেটি হবে ৩০
-                if (hijriAdjustment > 0 && rawTotal === 1) {
+                // সুমন ভাইয়ের কন্ডিশন: ১ তারিখ ৩০ হবে যদি অ্যাডজাস্টমেন্ট থাকে
+                if (hijriAdjustment > 0 && hTotal === 1) {
                     finalHDate = 30;
-                    finalHMonthIdx = (hMonthIdx - 1 + 12) % 12; // আগের মাসেই রাখা হলো
+                    finalHMonthIdx = (hMonthIdx - 1 + 12) % 12;
                 }
-                // -----------------------
 
+                // বাংলা ক্যালকুলেশন
                 let bTotalDays = Math.floor((dateObj - new Date(2026, 3, 14)) / (1000*60*60*24)) + 1;
                 let bMonthIdx = 0;
                 let bDate = bTotalDays;
@@ -165,7 +162,7 @@
                 grid.innerHTML += `
                     <div class="day-cell ${isToday ? 'today-mark' : ''}">
                         <div class="num-main ${dateObj.getDay() === 5 && !isToday ? 'friday-text' : ''}">${day}</div>
-                        <div class="num-sub">${hDisplay}/${bDate}</div>
+                        <div class="num-sub">${finalHDate}/${bDate}</div>
                     </div>
                 `;
 
@@ -184,7 +181,10 @@
             else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
             renderCalendar(currentYear, currentMonth);
         }
-        function updateClock() { document.getElementById('liveTime').innerText = new Date().toLocaleTimeString('en-US', { hour12: true }); }
+        function updateClock() { 
+            const timeEl = document.getElementById('liveTime');
+            if(timeEl) timeEl.innerText = new Date().toLocaleTimeString('en-US', { hour12: true }); 
+        }
         setInterval(updateClock, 1000);
         updateClock();
     </script>
