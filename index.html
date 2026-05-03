@@ -10,13 +10,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Hind Siliguri', sans-serif; background-color: #f1f5f9; }
-        .main-card { max-width: 450px; margin: 0 auto; background: white; min-height: 100vh; position: relative; overflow: hidden; }
+        .main-card { max-width: 450px; margin: 0 auto; background: white; min-height: 100vh; position: relative; }
         .header-section { background-color: #059669; padding: 25px; text-align: center; color: white; border-radius: 0 0 25px 25px; }
         .clock-pill { background: rgba(255,255,255,0.15); display: inline-block; padding: 8px 30px; border-radius: 50px; font-size: 22px; margin-top: 15px; font-family: 'Poppins', sans-serif; }
-        .date-display { padding: 30px 20px; text-align: center; border-bottom: 1px solid #f1f5f9; min-height: 200px; }
         .grid-7 { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; padding: 0 15px; }
         .day-cell { height: 65px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9; }
-        .today-mark { background: #2563eb !important; border: none; }
+        .today-mark { background: #2563eb !important; color: white !important; }
         .today-mark * { color: white !important; }
     </style>
 </head>
@@ -28,17 +27,17 @@
             <div id="liveTime" class="clock-pill">00:00:00 AM</div>
         </div>
 
-        <div class="date-display">
+        <div class="p-8 text-center border-bottom border-gray-100 min-h-[220px]">
             <h2 id="topDayName" class="text-2xl font-bold text-emerald-800 mb-4">লোড হচ্ছে...</h2>
-            <div id="topEng" class="text-xl font-semibold mb-2"></div>
-            <div id="topHijri" class="text-xl font-semibold mb-2"></div>
-            <div id="topBangla" class="text-xl font-semibold"></div>
+            <div id="topEng" class="text-xl font-semibold text-gray-700 mb-2"></div>
+            <div id="topHijri" class="text-xl font-semibold text-gray-700 mb-2"></div>
+            <div id="topBangla" class="text-xl font-semibold text-gray-700"></div>
         </div>
 
         <div class="flex justify-between items-center p-5">
-            <button class="text-2xl px-4" onclick="changeMonth(-1)">❮</button>
-            <div id="monthDisplay" class="text-2xl font-bold"></div>
-            <button class="text-2xl px-4" onclick="changeMonth(1)">❯</button>
+            <button class="text-2xl font-bold p-3" onclick="changeMonth(-1)">❮</button>
+            <div id="monthDisplay" class="text-2xl font-bold text-gray-800"></div>
+            <button class="text-2xl font-bold p-3" onclick="changeMonth(1)">❯</button>
         </div>
 
         <div class="grid-7 mb-4">
@@ -55,6 +54,7 @@
     </div>
 
     <script>
+        // Firebase initialization (আপনার URL টি এখানে দিন)
         const firebaseConfig = { databaseURL: "https://YOUR_DATABASE_URL.firebaseio.com/" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
@@ -75,28 +75,30 @@
 
         function renderCalendar() {
             const grid = document.getElementById('calendarGrid');
+            if(!grid) return;
             grid.innerHTML = '';
             document.getElementById('monthDisplay').innerText = `${engMonths[currentMonth]} ${currentYear}`;
 
             const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-            const startPos = (firstDay + 1) % 7; 
+            const startPos = (firstDay + 1) % 7;
             const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
             for (let i = 0; i < startPos; i++) grid.innerHTML += '<div></div>';
 
-            const baseDate = new Date(2026, 4, 3); // বেস ডেট: ৩ মে ২০২৬
+            const baseDate = new Date(2026, 4, 3); // বেস তারিখ: ৩ মে ২০২৬ (১৪ যিলক্বদ)
 
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateObj = new Date(currentYear, currentMonth, day);
-                const diffDays = Math.round((dateObj - baseDate) / (1000*60*60*24));
+                const diff = Math.round((dateObj - baseDate) / (1000*60*60*24));
                 
-                // আরবি ক্যালকুলেশন (বেস ২৯ দিন)
-                let hDay = (diffDays + 14) % 29;
-                if(hDay <= 0) hDay += 29;
+                // আরবি ক্যালকুলেশন
+                let hTotalDays = diff + 14; 
+                let hDay = ((hTotalDays % 29) + 29) % 29;
+                if(hDay === 0) hDay = 29;
 
-                let hMonthIdx = (Math.floor((diffDays + 14) / 29) % 12 + 12) % 12;
+                let hMonthIdx = (Math.floor(hTotalDays / 29) % 12 + 12) % 12;
 
-                // সুমন ভাইয়ের কন্ডিশন: +১ থাকলে ১ তারিখ ৩০ হবে
+                // আপনার কন্ডিশন: +১ অ্যাডজাস্টমেন্টে ১ তারিখ হবে ৩০
                 let finalHDay = hDay;
                 let finalHMonthIdx = hMonthIdx;
 
@@ -106,18 +108,21 @@
                 }
 
                 // বাংলা ক্যালকুলেশন
-                let bDayTotal = Math.round((dateObj - new Date(2026, 3, 14)) / (1000*60*60*24)) + 1;
+                let bTotalDays = Math.round((dateObj - new Date(2026, 3, 14)) / (1000*60*60*24)) + 1;
                 let bMonthIdx = 0;
-                let bDay = bDayTotal;
-                const bDays = [31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30, 30]; 
-                while(bDay > bDays[bMonthIdx]) { bDay -= bDays[bMonthIdx]; bMonthIdx = (bMonthIdx + 1) % 12; }
+                let bDate = bTotalDays;
+                const bDays = [31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30, 30];
+                for(let m=0; m<12; m++) {
+                    if(bDate <= bDays[m]) { bMonthIdx = m; break; }
+                    bDate -= bDays[m];
+                }
 
                 const isToday = (dateObj.toDateString() === new Date().toDateString());
 
                 grid.innerHTML += `
                     <div class="day-cell ${isToday ? 'today-mark' : ''}">
-                        <div class="text-lg font-bold">${day}</div>
-                        <div class="text-[10px]">${finalHDay}/${bDay}</div>
+                        <div class="text-xl font-bold">${day}</div>
+                        <div class="text-[10px] font-semibold">${finalHDay}/${bDate}</div>
                     </div>
                 `;
 
@@ -125,15 +130,15 @@
                     document.getElementById('topDayName').innerText = `আজ ${dayNamesBn[dateObj.getDay()]}`;
                     document.getElementById('topEng').innerText = `${day} ${engMonths[currentMonth]} ${currentYear} AD`;
                     document.getElementById('topHijri').innerText = `${finalHDay} ${hijriMonths[finalHMonthIdx]} 1447 হিজরি`;
-                    document.getElementById('topBangla').innerText = `${bDay} ${banglaMonths[bMonthIdx]} 1433 বঙ্গাব্দ`;
+                    document.getElementById('topBangla').innerText = `${bDate} ${banglaMonths[bMonthIdx]} 1433 বঙ্গাব্দ`;
                 }
             }
         }
 
-        function changeMonth(step) {
-            currentMonth += step;
-            if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-            else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+        function changeMonth(s) {
+            currentMonth += s;
+            if(currentMonth > 11) { currentMonth = 0; currentYear++; }
+            else if(currentMonth < 0) { currentMonth = 11; currentYear--; }
             renderCalendar();
         }
 
