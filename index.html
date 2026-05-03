@@ -21,15 +21,20 @@
         .nav-btn { background: #f8fafc; border: 1px solid #e2e8f0; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 20px; }
         .grid-7 { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; padding: 0 15px; }
         .weekday { text-align: center; font-weight: bold; font-size: 14px; color: #94a3b8; padding-bottom: 15px; font-family: 'Poppins', sans-serif; }
-        .day-cell { height: 65px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9; }
+        .day-cell { height: 65px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9; cursor: pointer; transition: 0.2s; }
+        .day-cell:hover { background: #e2e8f0; }
         .num-main { font-size: 19px; font-weight: 700; color: #1e293b; font-family: 'Poppins', sans-serif; }
         .num-sub { font-size: 10px; color: #64748b; margin-top: 2px; font-family: 'Poppins', sans-serif; }
         .today-mark { background: #2563eb !important; border: none; }
         .today-mark * { color: white !important; }
         .friday-text { color: #ef4444 !important; }
-        /* লাল স্টার স্টাইল */
-        .red-star { color: #ef4444; font-weight: bold; margin-left: 1px; }
+        .red-star { color: #ef4444; font-weight: bold; }
         .footer-note { text-align: center; color: #ef4444; font-weight: 600; font-size: 14px; padding: 20px 10px; }
+
+        /* Modal Style */
+        #detailModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: white; width: 100%; max-width: 350px; border-radius: 20px; padding: 25px; position: relative; text-align: center; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -40,9 +45,9 @@
             <div id="adminPanel" class="admin-dropdown">
                 <h3 class="text-xs font-bold mb-2 text-yellow-400">Hijri Adjustment</h3>
                 <div class="flex items-center justify-between gap-2">
-                    <button onclick="adjustHijri(-1)" class="bg-red-500 w-8 h-8 rounded">-</button>
+                    <button onclick="adjustHijri(-1, event)" class="bg-red-500 w-8 h-8 rounded">-</button>
                     <span id="adjVal" class="font-bold">0</span>
-                    <button onclick="adjustHijri(1)" class="bg-emerald-500 w-8 h-8 rounded">+</button>
+                    <button onclick="adjustHijri(1, event)" class="bg-emerald-500 w-8 h-8 rounded">+</button>
                 </div>
             </div>
             <h1 class="title-text">My Smart Calendar</h1>
@@ -69,9 +74,17 @@
         </div>
 
         <div id="calendarGrid" class="grid-7"></div>
+        <div class="footer-note">* আরবি তারিখ চাঁদ দেখার উপর নির্ভরশীল</div>
+    </div>
 
-        <div class="footer-note">
-            * আরবি তারিখ চাঁদ দেখার উপর নির্ভরশীল
+    <div id="detailModal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400">✕</button>
+            <h3 id="modalDay" class="text-3xl font-bold text-blue-600 mb-4">Sunday</h3>
+            <div id="modalEng" class="text-xl font-semibold text-gray-700 mb-2"></div>
+            <div id="modalHijri" class="text-xl font-semibold text-emerald-700 mb-2"></div>
+            <div id="modalBangla" class="text-xl font-semibold text-orange-700"></div>
+            <button onclick="closeModal()" class="mt-6 bg-gray-800 text-white px-8 py-2 rounded-full font-bold">বন্ধ করুন</button>
         </div>
     </div>
 
@@ -79,17 +92,32 @@
         let currentYear = 2026;
         let currentMonth = 4; 
         let hijriAdjustment = parseInt(localStorage.getItem('hijriAdj')) || 0;
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
         function toggleAdmin() {
             const panel = document.getElementById('adminPanel');
             panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
         }
 
-        function adjustHijri(val) {
+        function adjustHijri(val, e) {
+            e.stopPropagation();
             hijriAdjustment += val;
             localStorage.setItem('hijriAdj', hijriAdjustment);
             document.getElementById('adjVal').innerText = hijriAdjustment;
             renderCalendar(currentYear, currentMonth);
+        }
+
+        function showDetails(day, engDate, hijri, bangla, dayName) {
+            document.getElementById('modalDay').innerText = dayName;
+            document.getElementById('modalEng').innerText = `${day} ${engDate}`;
+            document.getElementById('modalHijri').innerText = `${hijri} Zilkad 1447 Hijri`;
+            document.getElementById('modalBangla').innerText = `${bangla} Boishakh 1433 Bangabda`;
+            document.getElementById('detailModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
         }
 
         function renderCalendar(year, month) {
@@ -101,33 +129,33 @@
             const firstDay = new Date(year, month, 1).getDay();
             const startPos = (firstDay + 1) % 7; 
             const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             
             display.innerText = `${monthNames[month]} ${year}`;
 
             for (let i = 0; i < startPos; i++) grid.innerHTML += '<div></div>';
 
             for (let day = 1; day <= daysInMonth; day++) {
+                const dateObj = new Date(year, month, day);
+                const dayName = dayNames[dateObj.getDay()];
                 const isToday = (year === 2026 && month === 4 && day === 3);
-                const isFri = ((day + startPos) % 7 === 0);
+                const isFri = (dateObj.getDay() === 5);
                 
                 let rawHijri = day + 13 + hijriAdjustment;
                 let hijriNum = rawHijri > 29 ? (rawHijri % 29 === 0 ? 29 : rawHijri % 29) : rawHijri;
-                
-                // ১ তারিখের সাথে লাল স্টার চিহ্ন
                 let hijriDisplay = (hijriNum === 1) ? `1<span class="red-star">*</span>` : hijriNum;
-                
                 let banglaDate = day + 17 > 31 ? day + 17 - 31 : day + 17;
 
+                const engMonthYear = `${monthNames[month]} ${year}`;
+
                 grid.innerHTML += `
-                    <div class="day-cell ${isToday ? 'today-mark' : ''}">
+                    <div class="day-cell ${isToday ? 'today-mark' : ''}" 
+                         onclick="showDetails(${day}, '${engMonthYear}', '${hijriNum}', ${banglaDate}, '${dayName}')">
                         <div class="num-main ${isFri && !isToday ? 'friday-text' : ''}">${day}</div>
                         <div class="num-sub">${hijriDisplay}/${banglaDate}</div>
                     </div>
                 `;
 
                 if(isToday) {
-                    // টপ ডিসপ্লেতেও স্টার থাকলে সেটিও লাল দেখাবে
                     document.getElementById('topHijri').innerHTML = `${hijriDisplay} Zilkad 1447 Hijri`;
                 }
             }
