@@ -152,20 +152,25 @@
                 const diffDays = Math.floor((dateObj - baseDate) / (1000*60*60*24));
                 
                 // হিজরি লজিক
-                let rawHDate = (diffDays + 14 + hijriAdjustment);
+                let daysSinceEpoch = diffDays + 14 + hijriAdjustment;
+                let hDate = daysSinceEpoch;
                 let hMonthIdx = 0;
-                while (rawHDate > 29) { rawHDate -= 29; hMonthIdx = (hMonthIdx + 1) % 12; }
-                while (rawHDate <= 0) { hMonthIdx = (hMonthIdx - 1 + 12) % 12; rawHDate += 29; }
 
-                // সুমন ভাইয়ের বিশেষ লজিক: ১ তারিখ ৩০ হবে (সমন্বয় থাকলে)
-                let finalHDate = rawHDate;
+                // মাস ও তারিখ নির্ণয়
+                while (hDate > 29) { hDate -= 29; hMonthIdx = (hMonthIdx + 1) % 12; }
+                while (hDate <= 0) { hMonthIdx = (hMonthIdx - 1 + 12) % 12; hDate += 29; }
+
+                // --- সুমন ভাইয়ের কাস্টম লজিক ---
+                // ১ তারিখ আসার কথা থাকলে এবং অ্যাডজাস্টমেন্ট থাকলে সেটি ৩০ হবে
+                let finalHDate = hDate;
                 let finalHMonthIdx = hMonthIdx;
-                if (hijriAdjustment > 0 && rawHDate === 1) {
+                
+                if (hijriAdjustment > 0 && hDate === 1) {
                     finalHDate = 30;
                     finalHMonthIdx = (hMonthIdx - 1 + 12) % 12;
                 }
+                // -----------------------------
 
-                // বাংলা তারিখ
                 let bTotalDays = Math.floor((dateObj - new Date(2026, 3, 14)) / (1000*60*60*24)) + 1;
                 let bMonthIdx = 0;
                 let bDate = bTotalDays;
@@ -206,9 +211,13 @@
             else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
             renderCalendar(currentYear, currentMonth);
         }
-        function updateClock() { document.getElementById('liveTime').innerText = new Date().toLocaleTimeString('en-US', { hour12: true }); }
+        function updateClock() { 
+            const el = document.getElementById('liveTime');
+            if(el) el.innerText = new Date().toLocaleTimeString('en-US', { hour12: true }); 
+        }
         setInterval(updateClock, 1000);
         updateClock();
+        renderCalendar(currentYear, currentMonth);
     </script>
 </body>
 </html>
