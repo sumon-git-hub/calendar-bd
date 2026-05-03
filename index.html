@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>স্মার্ট ক্যালেন্ডার প্রো</title>
+    <title>প্রিমিয়াম হিজরি ক্যালেন্ডার</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
     
@@ -12,129 +12,115 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
 
     <style>
-        body { font-family: 'Hind Siliguri', sans-serif; background-color: #f8fafc; }
-        .header-gradient { background: linear-gradient(135deg, #10b981, #059669); border-radius: 0 0 25px 25px; }
-        .calendar-card { background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .admin-box { background: #1e293b; border-radius: 20px; color: #fbbf24; }
-        .day-cell { border: 1px solid #f1f5f9; border-radius: 12px; transition: 0.2s; min-height: 70px; }
-        .today-mark { border: 2px solid #3b82f6; background-color: #eff6ff; }
-        .bn-num { font-size: 1.3rem; font-weight: 700; color: #334155; }
+        body { font-family: 'Hind Siliguri', sans-serif; background-color: #f3f4f6; }
+        .calendar-table { width: 100%; border-collapse: collapse; background: white; }
+        .calendar-table th, .calendar-table td { border: 1px solid #d1d5db; padding: 8px; text-align: center; }
+        .calendar-table th { background-color: #f9fafb; color: #374151; font-weight: bold; }
+        .hijri-main { font-size: 1.8rem; font-weight: 700; color: #dc2626; line-height: 1; }
+        .sub-dates { font-size: 0.75rem; font-weight: 600; color: #1f2937; margin-top: 4px; }
+        .header-box { border: 2px solid #374151; border-radius: 8px; margin-bottom: 10px; }
+        .admin-panel { background: #1e293b; color: white; border-radius: 12px; padding: 15px; margin-bottom: 20px; }
     </style>
 </head>
-<body class="pb-10">
+<body class="p-2 md:p-6">
 
-    <div class="header-gradient p-6 text-white shadow-lg mb-6">
-        <div class="max-w-md mx-auto flex justify-between items-center">
-            <div>
-                <h1 class="text-2xl font-bold">স্মার্ট ক্যালেন্ডার</h1>
-                <p id="topDate" class="text-sm opacity-90"></p>
-            </div>
-            <div class="bg-white/20 backdrop-blur-md p-3 rounded-2xl text-center">
-                <div id="clock" class="text-xl font-bold tracking-tighter">০০:০০:০০</div>
-                <div class="text-[10px] uppercase opacity-80">বাংলাদেশ সময়</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="max-w-md mx-auto px-4 space-y-6">
-
-        <div id="adminPanel" class="hidden admin-box p-5 shadow-xl border border-slate-700">
+    <div class="max-w-3xl mx-auto">
+        
+        <div id="adminPanel" class="hidden admin-panel shadow-2xl">
             <div class="flex justify-between items-center">
-                <div>
-                    <h3 class="font-bold text-lg">হিজরি সমন্বয়</h3>
-                    <p class="text-xs text-gray-400">এডমিন কন্ট্রোল প্যানেল</p>
-                </div>
-                <div class="flex items-center gap-3 bg-slate-800 p-2 rounded-full px-4 border border-slate-600">
-                    <button onclick="changeHijri(-1)" class="w-8 h-8 bg-red-500 text-white rounded-full font-bold shadow-md">-</button>
-                    <span id="adjDisplay" class="text-xl font-bold w-6 text-center text-white">০</span>
-                    <button onclick="changeHijri(1)" class="w-8 h-8 bg-green-500 text-white rounded-full font-bold shadow-md">+</button>
+                <h3 class="text-amber-400 font-bold">হিজরি তারিখ সমন্বয় (এডমিন)</h3>
+                <div class="flex items-center gap-4 bg-slate-700 p-2 rounded-lg">
+                    <button onclick="updateAdj(-1)" class="px-4 py-1 bg-red-600 rounded-md font-bold">-১</button>
+                    <span id="adjVal" class="text-xl font-bold">০</span>
+                    <button onclick="updateAdj(1)" class="px-4 py-1 bg-green-600 rounded-md font-bold">+১</button>
                 </div>
             </div>
         </div>
 
-        <div class="calendar-card p-6 border border-gray-100">
-            <div class="flex justify-between items-center mb-6">
-                <button class="text-gray-300 hover:text-gray-600 text-2xl">❮</button>
-                <h2 id="monthLabel" class="text-xl font-bold text-slate-700">মে ২০২৬</h2>
-                <button class="text-gray-300 hover:text-gray-600 text-2xl">❯</button>
-            </div>
+        <div class="bg-white p-4 rounded-t-xl border-t-2 border-x-2 border-gray-300">
+            <h1 class="text-2xl md:text-3xl text-center font-bold text-gray-800 border-b-2 border-gray-800 pb-2 mb-4">হিজরি ক্যালেন্ডার ১৪৪৭ হিজরি</h1>
             
-            <div class="grid grid-cols-7 gap-1 text-center font-bold text-gray-400 text-xs mb-3">
-                <div>শনি</div><div>রবি</div><div>সোম</div><div>মঙ্গল</div><div>বুধ</div><div>বৃহ</div><div class="text-red-400">শুক্র</div>
+            <div class="grid grid-cols-3 gap-2 text-center font-bold text-sm md:text-base">
+                <div class="border-2 border-gray-800 rounded p-1">May 2026</div>
+                <div class="border-2 border-red-600 text-red-600 rounded p-1">জিলকদ ১৪৪৭ হিজরি</div>
+                <div class="border-2 border-gray-800 rounded p-1">বৈশাখ-জ্যৈষ্ঠ ১৪৩৩</div>
             </div>
+        </div>
 
-            <div id="calGrid" class="grid grid-cols-7 gap-2"></div>
+        <table class="calendar-table shadow-lg">
+            <thead>
+                <tr>
+                    <th>শনি</th><th>রবি</th><th>সোম</th><th>মঙ্গল</th><th>বুধ</th><th>বৃহঃ</th><th class="bg-yellow-200 text-red-600">শুক্র</th>
+                </tr>
+            </thead>
+            <tbody id="calendarBody">
+                </tbody>
+        </table>
+
+        <div class="mt-4 text-center text-red-600 font-bold text-sm bg-white p-3 border-2 border-dashed border-red-300 rounded-lg">
+            * আরবি মাস চাঁদ দেখার উপর নির্ভরশীল।
         </div>
     </div>
 
     <script>
-        // আপনার Firebase কনফিগ এখানে দিন
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+        // Firebase Config (আপনারটা বসাবেন)
+        const firebaseConfig = { apiKey: "...", projectId: "...", appId: "..." };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
         const toBn = n => n.toString().replace(/\d/g, d => "০১২৩৪৫৬৭৮৯"[d]);
-        let hAdjustment = 0;
+        let adjustment = 0;
 
         // এডমিন চেক
         firebase.auth().onAuthStateChanged(user => {
-            if (user && user.email === 'admin@gmail.com') {
-                document.getElementById('adminPanel').classList.remove('hidden');
-            }
+            if (user && user.email === 'admin@gmail.com') document.getElementById('adminPanel').classList.remove('hidden');
         });
 
-        // হিজরি আপডেট শোনা
+        // হিজরি আপডেট রিয়েল-টাইম
         db.collection('settings').doc('hijri').onSnapshot(doc => {
-            if (doc.exists) {
-                hAdjustment = doc.data().value || 0;
-                document.getElementById('adjDisplay').innerText = toBn(hAdjustment);
-                render();
-            }
+            adjustment = doc.exists ? doc.data().value : 0;
+            document.getElementById('adjVal').innerText = toBn(adjustment);
+            render();
         });
 
-        function changeHijri(v) {
-            db.collection('settings').doc('hijri').set({ value: hAdjustment + v });
+        function updateAdj(v) {
+            db.collection('settings').doc('hijri').set({ value: adjustment + v });
         }
 
         function render() {
-            const grid = document.getElementById('calGrid');
-            grid.innerHTML = '';
-            const days = 31; // মে মাস
-            const start = 6; // শনিবার থেকে শুরু
-
-            for(let i=0; i<start; i++) grid.innerHTML += '<div></div>';
-
-            for(let d=1; d<=days; d++) {
-                const isToday = (d === 3); // আজকের দিন ৩ মে
-                const arb = d + 16 + hAdjustment;
-
-                grid.innerHTML += `
-                    <div class="day-cell p-2 text-center flex flex-col justify-between ${isToday ? 'today-mark' : 'bg-white'}">
-                        <div class="bn-num">${toBn(d)}</div>
-                        <div class="flex flex-col text-[10px] leading-tight">
-                            <span class="text-emerald-600 font-bold">বৈশাখ</span>
-                            <span class="text-amber-600 font-bold">${toBn(arb)}</span>
-                        </div>
-                    </div>
-                `;
+            const body = document.getElementById('calendarBody');
+            body.innerHTML = '';
+            let date = 1;
+            const startDay = 6; // মে ২০২৬ শুরু শনিবার থেকে
+            
+            for (let i = 0; i < 6; i++) { // ৫-৬টি সপ্তাহ
+                let row = document.createElement('tr');
+                for (let j = 0; j < 7; j++) {
+                    let cell = document.createElement('td');
+                    if (i === 0 && j < startDay) {
+                        cell.innerHTML = "";
+                    } else if (date > 31) {
+                        cell.innerHTML = "";
+                    } else {
+                        const isFriday = (j === 6);
+                        const arbDate = date + 13 + adjustment; // হিজরি ক্যালকুলেশন
+                        const bngDate = (date + 17) % 31 || 31;
+                        
+                        cell.className = isFriday ? "bg-yellow-50" : "";
+                        cell.innerHTML = `
+                            <div class="hijri-main">${toBn(arbDate)}</div>
+                            <div class="sub-dates">
+                                <span>${date} May</span> | <span>${toBn(bngDate)} বৈশাখ</span>
+                            </div>
+                        `;
+                        date++;
+                    }
+                    row.appendChild(cell);
+                }
+                body.appendChild(row);
+                if (date > 31) break;
             }
         }
-
-        // ঘড়ি ও তারিখ আপডেট
-        setInterval(() => {
-            const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString('bn-BD', {hour12: false});
-            document.getElementById('topDate').innerText = now.toLocaleDateString('bn-BD', {weekday: 'long', day: 'numeric', month: 'long'});
-        }, 1000);
-
-        render();
     </script>
 </body>
 </html>
