@@ -5,19 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Smart Calendar</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Hind Siliguri', sans-serif; background-color: #f1f5f9; }
-        .main-card { max-width: 450px; margin: 0 auto; background: white; min-height: 100vh; position: relative; }
-        .header-section { background-color: #059669; padding: 25px; text-align: center; color: white; border-radius: 0 0 25px 25px; }
+        .main-card { max-width: 450px; margin: 0 auto; background: white; min-height: 100vh; position: relative; overflow: hidden; }
+        .header-section { background-color: #059669; padding: 25px; text-align: center; color: white; border-radius: 0 0 25px 25px; position: relative; }
         .title-text { font-family: 'Poppins', sans-serif; font-size: 24px; font-weight: 700; }
         .clock-pill { background: rgba(255,255,255,0.15); display: inline-block; padding: 8px 30px; border-radius: 50px; font-size: 22px; margin-top: 15px; font-family: 'Poppins', sans-serif; font-weight: 600; }
+        
+        /* Three Dot Menu & Admin Panel */
+        .menu-btn { position: absolute; top: 25px; right: 20px; cursor: pointer; font-size: 24px; color: white; }
+        .admin-dropdown { display: none; position: absolute; top: 60px; right: 20px; background: #1e293b; color: white; padding: 15px; border-radius: 12px; z-index: 50; width: 160px; box-shadow: 0 10px 15px rgba(0,0,0,0.2); }
+        
         .date-display { padding: 30px 20px; text-align: center; border-bottom: 1px solid #f1f5f9; }
         .date-row { font-size: 20px; font-weight: 600; color: #334155; margin: 10px 0; font-family: 'Poppins', sans-serif; }
-        .admin-panel { background: #1e293b; color: white; padding: 15px; margin: 15px; border-radius: 15px; }
         .calendar-nav { display: flex; justify-content: space-between; align-items: center; padding: 20px; }
         .month-label { font-size: 26px; font-weight: 700; color: #1e293b; font-family: 'Poppins', sans-serif; min-width: 180px; text-align: center; }
         .nav-btn { background: #f8fafc; border: 1px solid #e2e8f0; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 20px; }
+        
         .grid-7 { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; padding: 0 15px; }
         .weekday { text-align: center; font-weight: bold; font-size: 14px; color: #94a3b8; padding-bottom: 15px; font-family: 'Poppins', sans-serif; }
         .day-cell { height: 65px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9; }
@@ -31,16 +36,16 @@
 <body>
 
     <div class="main-card shadow-lg">
-        <div class="admin-panel">
-            <h3 class="text-sm font-bold mb-2 text-yellow-400">হিজরি সমন্বয় (Admin Only)</h3>
-            <div class="flex items-center justify-between">
-                <button onclick="adjustHijri(-1)" class="bg-red-500 px-4 py-1 rounded">-1</button>
-                <span id="adjustmentValue" class="text-xl font-bold">0</span>
-                <button onclick="adjustHijri(1)" class="bg-emerald-500 px-4 py-1 rounded">+1</button>
-            </div>
-        </div>
-
         <div class="header-section">
+            <div class="menu-btn" onclick="toggleAdmin()">⋮</div>
+            <div id="adminPanel" class="admin-dropdown">
+                <h3 class="text-xs font-bold mb-2 text-yellow-400">Hijri Adjustment</h3>
+                <div class="flex items-center justify-between gap-2">
+                    <button onclick="adjustHijri(-1)" class="bg-red-500 w-8 h-8 rounded">-</button>
+                    <span id="adjVal" class="font-bold">0</span>
+                    <button onclick="adjustHijri(1)" class="bg-emerald-500 w-8 h-8 rounded">+</button>
+                </div>
+            </div>
             <h1 class="title-text">My Smart Calendar</h1>
             <div id="liveTime" class="clock-pill">00:00:00 AM</div>
         </div>
@@ -72,24 +77,23 @@
         let currentMonth = 4; 
         let hijriAdjustment = parseInt(localStorage.getItem('hijriAdj')) || 0;
 
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('liveTime').innerText = now.toLocaleTimeString('en-US', { hour12: true });
+        function toggleAdmin() {
+            const panel = document.getElementById('adminPanel');
+            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
         }
 
         function adjustHijri(val) {
             hijriAdjustment += val;
             localStorage.setItem('hijriAdj', hijriAdjustment);
-            document.getElementById('adjustmentValue').innerText = hijriAdjustment;
+            document.getElementById('adjVal').innerText = hijriAdjustment;
             renderCalendar(currentYear, currentMonth);
         }
 
         function renderCalendar(year, month) {
             const grid = document.getElementById('calendarGrid');
             const display = document.getElementById('monthDisplay');
-            const adjDisplay = document.getElementById('adjustmentValue');
             grid.innerHTML = '';
-            adjDisplay.innerText = hijriAdjustment;
+            document.getElementById('adjVal').innerText = hijriAdjustment;
 
             const firstDay = new Date(year, month, 1).getDay();
             const startPos = (firstDay + 1) % 7; 
@@ -104,9 +108,11 @@
                 const isToday = (year === 2026 && month === 4 && day === 3);
                 const isFri = ((day + startPos) % 7 === 0);
                 
-                // হিজরি সমন্বয় লজিক
-                const hijriDate = day + 13 + hijriAdjustment;
-                const banglaDate = day + 17 > 31 ? day + 17 - 31 : day + 17;
+                // আরবি ২৯ পর্যন্ত লজিক
+                let rawHijri = day + 13 + hijriAdjustment;
+                let hijriDate = rawHijri > 29 ? (rawHijri % 29 === 0 ? 29 : rawHijri % 29) : rawHijri;
+                
+                let banglaDate = day + 17 > 31 ? day + 17 - 31 : day + 17;
 
                 grid.innerHTML += `
                     <div class="day-cell ${isToday ? 'today-mark' : ''}">
@@ -126,6 +132,11 @@
             if (currentMonth > 11) { currentMonth = 0; currentYear++; }
             else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
             renderCalendar(currentYear, currentMonth);
+        }
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('liveTime').innerText = now.toLocaleTimeString('en-US', { hour12: true });
         }
 
         setInterval(updateClock, 1000);
