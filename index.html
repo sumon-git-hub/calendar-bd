@@ -16,7 +16,7 @@
         .clock-pill { background: rgba(255,255,255,0.15); display: inline-block; padding: 8px 30px; border-radius: 50px; font-size: 22px; margin-top: 15px; font-family: 'Poppins', sans-serif; font-weight: 600; }
         .menu-btn { position: absolute; top: 25px; right: 20px; cursor: pointer; font-size: 24px; color: white; }
         .admin-dropdown { display: none; position: absolute; top: 60px; right: 20px; background: #1e293b; color: white; padding: 15px; border-radius: 12px; z-index: 50; width: 160px; box-shadow: 0 10px 15px rgba(0,0,0,0.2); }
-        .date-display { padding: 30px 20px; text-align: center; border-bottom: 1px solid #f1f5f9; min-height: 180px; }
+        .date-display { padding: 30px 20px; text-align: center; border-bottom: 1px solid #f1f5f9; min-height: 200px; }
         .date-row { font-size: 20px; font-weight: 600; color: #334155; margin: 10px 0; }
         .eng-num { font-family: 'Poppins', sans-serif; }
         .calendar-nav { display: flex; justify-content: space-between; align-items: center; padding: 20px; }
@@ -30,7 +30,6 @@
         .today-mark { background: #2563eb !important; border: none; }
         .today-mark * { color: white !important; }
         .friday-text { color: #ef4444 !important; }
-        .red-star { color: #ef4444; font-weight: bold; }
         .footer-note { text-align: center; color: #ef4444; font-weight: 600; font-size: 14px; padding: 20px 10px; }
     </style>
 </head>
@@ -53,7 +52,7 @@
         </div>
 
         <div class="date-display">
-            <h2 id="topDayName" class="text-2xl font-bold text-emerald-800 mb-4">আজ রবিবার</h2>
+            <h2 id="topDayName" class="text-2xl font-bold text-emerald-800 mb-4">লোড হচ্ছে...</h2>
             <div id="topEng" class="date-row eng-num"></div>
             <div id="topHijri" class="date-row"></div>
             <div id="topBangla" class="date-row"></div>
@@ -125,30 +124,29 @@
 
             for (let i = 0; i < startPos; i++) grid.innerHTML += '<div></div>';
 
-            const baseDate = new Date(2026, 4, 3); // বেস ডেট
+            const baseDate = new Date(2026, 4, 3); // বেস তারিখ
             
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateObj = new Date(year, month, day);
                 const diffDays = Math.floor((dateObj - baseDate) / (1000*60*60*24));
                 
-                // আরবি লজিক ফিক্স
-                let totalH = diffDays + 14 + hijriAdjustment;
-                let hMonthIdx = 0;
-                
-                // বেস সাইকেল ২৯ দিনের
-                while (totalH > 29) { totalH -= 29; hMonthIdx = (hMonthIdx + 1) % 12; }
-                while (totalH <= 0) { hMonthIdx = (hMonthIdx - 1 + 12) % 12; totalH += 29; }
+                // স্বাভাবিক আরবি গণনা (২৯ দিন হিসেবে)
+                let hTotal = (diffDays + 14) % 29;
+                if(hTotal <= 0) hTotal += 29;
 
-                let finalHDate = totalH;
-                let finalHMonthIdx = hMonthIdx;
+                let hMonthOffset = Math.floor((diffDays + 14) / 29);
+                let hMonthIdx = (hMonthOffset % 12 + 12) % 12;
 
-                // সুমন ভাইয়ের কন্ডিশন: ১ তারিখ ৩০ হবে যদি অ্যাডজাস্টমেন্ট থাকে
-                if (hijriAdjustment > 0 && totalH === 1) {
-                    finalHDate = 30;
-                    finalHMonthIdx = (hMonthIdx - 1 + 12) % 12;
+                // সুমন ভাইয়ের বিশেষ কন্ডিশন: ১ তারিখকে ৩০ বানানো
+                let displayHDate = hTotal;
+                let displayHMonthIdx = hMonthIdx;
+
+                if (hijriAdjustment > 0 && hTotal === 1) {
+                    displayHDate = 30;
+                    displayHMonthIdx = (hMonthIdx - 1 + 12) % 12;
                 }
 
-                // বাংলা ক্যালকুলেশন
+                // বাংলা গণনা
                 let bTotalDays = Math.floor((dateObj - new Date(2026, 3, 14)) / (1000*60*60*24)) + 1;
                 let bMonthIdx = 0;
                 let bDate = bTotalDays;
@@ -160,14 +158,14 @@
                 grid.innerHTML += `
                     <div class="day-cell ${isToday ? 'today-mark' : ''}">
                         <div class="num-main ${dateObj.getDay() === 5 && !isToday ? 'friday-text' : ''}">${day}</div>
-                        <div class="num-sub">${finalHDate}/${bDate}</div>
+                        <div class="num-sub">${displayHDate}/${bDate}</div>
                     </div>
                 `;
 
                 if(isToday) {
                     document.getElementById('topDayName').innerText = `আজ ${dayNamesBn[dateObj.getDay()]}`;
                     document.getElementById('topEng').innerText = `${day} ${engMonths[month]} ${year} AD`;
-                    document.getElementById('topHijri').innerHTML = `${finalHDate} ${hijriMonths[finalHMonthIdx]} <span class="eng-num">1447</span> হিজরি`;
+                    document.getElementById('topHijri').innerHTML = `${displayHDate} ${hijriMonths[displayHMonthIdx]} <span class="eng-num">1447</span> হিজরি`;
                     document.getElementById('topBangla').innerHTML = `${bDate} ${banglaMonths[bMonthIdx]} <span class="eng-num">1433</span> বঙ্গাব্দ`;
                 }
             }
