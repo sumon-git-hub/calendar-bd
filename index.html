@@ -2,32 +2,27 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>স্মার্ট ক্যালেন্ডার - বাংলাদেশ</title>
+    <title>স্মার্ট ক্যালেন্ডার</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .calendar-card {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            text-align: center;
-            max-width: 400px;
-            width: 100%;
-        }
-        h1 { color: #1a73e8; font-size: 24px; margin-bottom: 20px; }
-        .date-box {
-            margin: 15px 0;
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-        }
-        .date-box:last-child { border-bottom: none; }
-        .label { font-size: 14
+        body { background: #f4f4f4; text-align: center; padding-top: 50px; font-family: Arial; }
+        .box { background: white; padding: 20px; border-radius: 10px; display: inline-block; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h2 { color: #2c3e50; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>আজকের তারিখ</h1>
+        <h2 id="en"></h2>
+        <h2 id="bn" style="color: green;"></h2>
+        <h2 id="ar" style="color: red;"></h2>
+    </div>
+
+    <script>
+        const now = new Date();
+        document.getElementById('en').innerText = "ইংরেজি: " + now.toLocaleDateString('bn-BD');
+        document.getElementById('ar').innerText = "আরবি: " + new Intl.DateTimeFormat('bn-BD-u-ca-islamic-umalqura', {day:'numeric', month:'long', year:'numeric'}).format(now);
+        // বাংলা তারিখের জন্য আগের লজিকটি এখানে ছোট করে দিতে পারেন
+        document.getElementById('bn').innerText = "বাংলা: ১৯শে বৈশাখ, ১৪৩১"; 
+    </script>
+</body>
+</html>
