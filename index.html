@@ -27,6 +27,8 @@
         .today-mark { background: #2563eb !important; border: none; }
         .today-mark * { color: white !important; }
         .friday-text { color: #ef4444 !important; }
+        /* লাল স্টার স্টাইল */
+        .red-star { color: #ef4444; font-weight: bold; margin-left: 1px; }
         .footer-note { text-align: center; color: #ef4444; font-weight: 600; font-size: 14px; padding: 20px 10px; }
     </style>
 </head>
@@ -112,8 +114,8 @@
                 let rawHijri = day + 13 + hijriAdjustment;
                 let hijriNum = rawHijri > 29 ? (rawHijri % 29 === 0 ? 29 : rawHijri % 29) : rawHijri;
                 
-                // ১ তারিখের সাথে স্টার চিহ্ন
-                let hijriDisplay = (hijriNum === 1) ? "1*" : hijriNum;
+                // ১ তারিখের সাথে লাল স্টার চিহ্ন
+                let hijriDisplay = (hijriNum === 1) ? `1<span class="red-star">*</span>` : hijriNum;
                 
                 let banglaDate = day + 17 > 31 ? day + 17 - 31 : day + 17;
 
@@ -125,7 +127,8 @@
                 `;
 
                 if(isToday) {
-                    document.getElementById('topHijri').innerText = `${hijriDisplay} Zilkad 1447 Hijri`;
+                    // টপ ডিসপ্লেতেও স্টার থাকলে সেটিও লাল দেখাবে
+                    document.getElementById('topHijri').innerHTML = `${hijriDisplay} Zilkad 1447 Hijri`;
                 }
             }
         }
