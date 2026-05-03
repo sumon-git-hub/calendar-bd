@@ -1,29 +1,33 @@
-<script>
-    // বাংলা তারিখ গণনার ফাংশন
-    function getBengaliDate(date) {
-        const day = date.getDate();
-        const month = date.getMonth();
-        const year = date.getFullYear();
-        
-        let bYear = year - 593;
-        let bDay, bMonthName;
-        
-        const bengaliMonths = ["বৈশাখ", "জ্যৈষ্ঠ", "আষাঢ়", "শ্রাবণ", "ভাদ্র", "আশ্বিন", "কার্তিক", "অগ্রহায়ণ", "পৌষ", "মাঘ", "ফাল্গুন", "চৈত্র"];
-        
-        // সহজ হিসাবের জন্য বর্তমান নিয়ম অনুযায়ী (বাংলাদেশি ক্যালেন্ডার)
-        if (month < 3 || (month === 3 && day < 14)) bYear -= 1;
-        
-        // মাস ও দিন নির্ধারণের লজিক (সংক্ষিপ্ত রূপ)
-        // পূর্ণাঙ্গ লজিক এখানে যুক্ত করা হয়েছে যাতে ক্যালেন্ডারে তারিখ দেখা যায়
-        return { day: day, month: bengaliMonths[month] }; // উদাহরণস্বরূপ
-    }
-
-    // ক্যালেন্ডারে তারিখ দেখানোর সময় এই ফাংশনটি কল হবে
-    function updateCalendar() {
-        // ... আগের ক্যালেন্ডার তৈরির লজিক ...
-        // তারিখের ঘরে এখন থেকে নিচের মতো দেখাবে:
-        // ১৫ (ইংরেজি)
-        // ১লা রমজান (আরবি)
-        // ২রা জ্যৈষ্ঠ (বাংলা)
-    }
-</script>
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>স্মার্ট ক্যালেন্ডার - বাংলাদেশ</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .calendar-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 { color: #1a73e8; font-size: 24px; margin-bottom: 20px; }
+        .date-box {
+            margin: 15px 0;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .date-box:last-child { border-bottom: none; }
+        .label { font-size: 14
