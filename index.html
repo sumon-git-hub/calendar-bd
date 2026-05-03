@@ -8,21 +8,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Hind Siliguri', sans-serif; background-color: #f1f5f9; }
-        .main-card { max-width: 450px; margin: 0 auto; background: white; min-height: 100vh; }
+        .main-card { max-width: 450px; margin: 0 auto; background: white; min-height: 100vh; display: flex; flex-direction: column; }
         .header-section { background-color: #059669; padding: 25px; text-align: center; color: white; border-radius: 0 0 25px 25px; }
         .title-text { font-family: 'Poppins', sans-serif; font-size: 24px; font-weight: 700; }
         .clock-pill { background: rgba(255,255,255,0.15); display: inline-block; padding: 8px 30px; border-radius: 50px; font-size: 22px; margin-top: 15px; font-family: 'Poppins', sans-serif; font-weight: 600; }
         .date-display { padding: 30px 20px; text-align: center; border-bottom: 1px solid #f1f5f9; }
-        .date-row { font-size: 20px; font-weight: 600; color: #334155; margin: 10px 0; }
+        .date-row { font-size: 20px; font-weight: 600; color: #334155; margin: 10px 0; font-family: 'Poppins', sans-serif; }
         .calendar-nav { display: flex; justify-content: space-between; align-items: center; padding: 20px; }
-        .month-label { font-size: 28px; font-weight: 700; color: #1e293b; font-family: 'Poppins', sans-serif; }
-        .nav-btn { background: #f8fafc; border: 1px solid #e2e8f0; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .month-label { font-size: 26px; font-weight: 700; color: #1e293b; font-family: 'Poppins', sans-serif; min-width: 180px; text-align: center; }
+        .nav-btn { background: #f8fafc; border: 1px solid #e2e8f0; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 20px; }
         .nav-btn:hover { background: #e2e8f0; }
-        .grid-7 { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; padding: 0 15px; }
-        .weekday { text-align: center; font-weight: bold; font-size: 14px; color: #94a3b8; padding-bottom: 15px; }
-        .day-cell { height: 65px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9; }
-        .num-main { font-size: 20px; font-weight: 700; color: #1e293b; font-family: 'Poppins', sans-serif; }
-        .num-sub { font-size: 11px; color: #64748b; margin-top: 2px; }
+        .grid-7 { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; padding: 0 15px; }
+        .weekday { text-align: center; font-weight: bold; font-size: 14px; color: #94a3b8; padding-bottom: 15px; font-family: 'Poppins', sans-serif; }
+        .day-cell { height: 65px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9; cursor: pointer; }
+        .num-main { font-size: 19px; font-weight: 700; color: #1e293b; font-family: 'Poppins', sans-serif; }
+        .num-sub { font-size: 10px; color: #64748b; margin-top: 2px; font-family: 'Poppins', sans-serif; }
         .today-mark { background: #2563eb !important; border: none; }
         .today-mark * { color: white !important; }
         .friday-text { color: #ef4444 !important; }
@@ -38,15 +38,15 @@
 
         <div class="date-display">
             <h2 class="text-2xl font-bold text-emerald-800 mb-4">আজ রবিবার</h2>
-            <div class="date-row">০৩ মে ২০২৬ খ্রিষ্টাব্দ</div>
-            <div class="date-row">১৪ যিলক্বদ ১৪৪৭ হিজরি</div>
-            <div class="date-row">২০ বৈশাখ ১৪৩৩ বঙ্গাব্দ</div>
+            <div class="date-row">03 May 2026 AD</div>
+            <div class="date-row">14 Zilkad 1447 Hijri</div>
+            <div class="date-row">20 Boishakh 1433 Bangabda</div>
         </div>
 
         <div class="calendar-nav">
-            <button class="nav-btn">&lt;</button>
-            <div class="month-label">May 2026</div>
-            <button class="nav-btn">&gt;</button>
+            <button class="nav-btn" onclick="changeMonth(-1)">❮</button>
+            <div id="monthDisplay" class="month-label">May 2026</div>
+            <button class="nav-btn" onclick="changeMonth(1)">❯</button>
         </div>
 
         <div class="grid-7">
@@ -55,33 +55,69 @@
             <div class="weekday friday-text">Fri</div>
         </div>
 
-        <div class="grid-7 pb-10">
-            <div class="day-cell"><div class="num-main">1</div><div class="num-sub">12/18</div></div>
-            <div class="day-cell"><div class="num-main">2</div><div class="num-sub">13/19</div></div>
-            <div class="day-cell today-mark"><div class="num-main">3</div><div class="num-sub">14/20</div></div>
-            <div class="day-cell"><div class="num-main">4</div><div class="num-sub">15/21</div></div>
-            <div class="day-cell"><div class="num-main">5</div><div class="num-sub">16/22</div></div>
-            <div class="day-cell"><div class="num-main">6</div><div class="num-sub">17/23</div></div>
-            <div class="day-cell friday-text"><div class="num-main">7</div><div class="num-sub">18/24</div></div>
-            
-            <div class="day-cell"><div class="num-main">8</div><div class="num-sub">19/25</div></div>
-            <div class="day-cell"><div class="num-main">9</div><div class="num-sub">20/26</div></div>
-            <div class="day-cell"><div class="num-main">10</div><div class="num-sub">21/27</div></div>
-            <div class="day-cell"><div class="num-main">11</div><div class="num-sub">22/28</div></div>
-            <div class="day-cell"><div class="num-main">12</div><div class="num-sub">23/29</div></div>
-            <div class="day-cell"><div class="num-main">13</div><div class="num-sub">24/30</div></div>
-            <div class="day-cell friday-text"><div class="num-main">14</div><div class="num-sub">25/1</div></div>
-        </div>
+        <div id="calendarGrid" class="grid-7 pb-10">
+            </div>
     </div>
 
     <script>
+        let currentYear = 2026;
+        let currentMonth = 4; // May (0-indexed)
+
         function updateClock() {
             const now = new Date();
-            const timeStr = now.toLocaleTimeString('en-US', { hour12: true });
-            document.getElementById('liveTime').innerText = timeStr;
+            document.getElementById('liveTime').innerText = now.toLocaleTimeString('en-US', { hour12: true });
         }
+
+        function renderCalendar(year, month) {
+            const grid = document.getElementById('calendarGrid');
+            const display = document.getElementById('monthDisplay');
+            grid.innerHTML = '';
+
+            const firstDay = new Date(year, month, 1).getDay();
+            // adjusting Sat to be index 0
+            const startPos = (firstDay + 1) % 7; 
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            
+            display.innerText = `${monthNames[month]} ${year}`;
+
+            // Padding for empty days
+            for (let i = 0; i < startPos; i++) {
+                grid.innerHTML += '<div></div>';
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const isToday = (year === 2026 && month === 4 && day === 3);
+                const isFri = ((day + startPos) % 7 === 0);
+                
+                // Static calculation for sub-dates (Sample logic)
+                const hijri = day + 13;
+                const bangla = day + 17 > 31 ? day + 17 - 31 : day + 17;
+
+                grid.innerHTML += `
+                    <div class="day-cell ${isToday ? 'today-mark' : ''}">
+                        <div class="num-main ${isFri && !isToday ? 'friday-text' : ''}">${day}</div>
+                        <div class="num-sub">${hijri}/${bangla}</div>
+                    </div>
+                `;
+            }
+        }
+
+        function changeMonth(step) {
+            currentMonth += step;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            } else if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderCalendar(currentYear, currentMonth);
+        }
+
         setInterval(updateClock, 1000);
         updateClock();
+        renderCalendar(currentYear, currentMonth);
     </script>
 </body>
 </html>
