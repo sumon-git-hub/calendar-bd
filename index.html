@@ -44,7 +44,7 @@
                 <h3 class="text-xs font-bold mb-2 text-yellow-400">Hijri Adjustment</h3>
                 <div class="flex items-center justify-between gap-2">
                     <button onclick="adjustHijri(-1, event)" class="bg-red-500 w-8 h-8 rounded">-</button>
-                    <span id="adjVal" class="font-bold">0</span>
+                    <span id="adjVal" class="font-bold eng-num">0</span>
                     <button onclick="adjustHijri(1, event)" class="bg-emerald-500 w-8 h-8 rounded">+</button>
                 </div>
             </div>
@@ -55,8 +55,8 @@
         <div class="date-display">
             <h2 id="topDayName" class="text-2xl font-bold text-emerald-800 mb-4">আজ রবিবার</h2>
             <div id="topEng" class="date-row eng-num">03 May 2026 AD</div>
-            <div id="topHijri" class="date-row">১৪ যিলক্বদ ১৪৪৭ হিজরি</div>
-            <div id="topBangla" class="date-row">২০ বৈশাখ ১৪৩৩ বঙ্গাব্দ</div>
+            <div id="topHijri" class="date-row">১৪ যিলক্বদ <span class="eng-num">1447</span> হিজরি</div>
+            <div id="topBangla" class="date-row">২০ বৈশাখ <span class="eng-num">1433</span> বঙ্গাব্দ</div>
         </div>
 
         <div class="calendar-nav">
@@ -124,16 +124,14 @@
                 const dateObj = new Date(year, month, day);
                 const isToday = (year === 2026 && month === 4 && day === 3);
                 
-                // আরবি তারিখ ও মাস নির্ধারণ
                 let hTotalDays = Math.floor((dateObj - new Date(2026, 4, 3)) / (1000*60*60*24)) + 14 + hijriAdjustment;
-                let hMonthIdx = 0; // যিলক্বদ থেকে শুরু
+                let hMonthIdx = 0; 
                 let hDate = hTotalDays;
                 while(hDate > 29) { hDate -= 29; hMonthIdx = (hMonthIdx + 1) % 12; }
                 if(hDate <= 0) { hDate += 29; hMonthIdx = (hMonthIdx - 1 + 12) % 12; }
 
-                // বাংলা তারিখ ও মাস নির্ধারণ (বাংলাদেশ স্ট্যান্ডার্ড)
                 let bTotalDays = Math.floor((dateObj - new Date(2026, 3, 14)) / (1000*60*60*24)) + 1;
-                let bMonthIdx = 0; // বৈশাখ থেকে শুরু
+                let bMonthIdx = 0; 
                 let bDate = bTotalDays;
                 const bDaysInMonth = [31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30, 30]; 
                 while(bDate > bDaysInMonth[bMonthIdx]) { bDate -= bDaysInMonth[bMonthIdx]; bMonthIdx = (bMonthIdx + 1) % 12; }
@@ -150,8 +148,8 @@
                 if(isToday) {
                     document.getElementById('topDayName').innerText = `আজ ${dayNamesBn[dateObj.getDay()]}`;
                     document.getElementById('topEng').innerText = `${day} ${engMonths[month]} ${year} AD`;
-                    document.getElementById('topHijri').innerHTML = `${hDate} ${hijriMonths[hMonthIdx]} ১৪৪৭ হিজরি`;
-                    document.getElementById('topBangla').innerText = `${bDate} ${banglaMonths[bMonthIdx]} ১৪৩৩ বঙ্গাব্দ`;
+                    document.getElementById('topHijri').innerHTML = `${hDate} ${hijriMonths[hMonthIdx]} <span class="eng-num">1447</span> হিজরি`;
+                    document.getElementById('topBangla').innerHTML = `${bDate} ${banglaMonths[bMonthIdx]} <span class="eng-num">1433</span> বঙ্গাব্দ`;
                 }
             }
         }
@@ -159,8 +157,8 @@
         function showDetails(d, eng, h, b, dayName) {
             document.getElementById('modalDay').innerText = dayName;
             document.getElementById('modalEng').innerText = `${d} ${eng}`;
-            document.getElementById('modalHijri').innerText = `${h} ১৪৪৭ হিজরি`;
-            document.getElementById('modalBangla').innerText = `${b} ১৪৩৩ বঙ্গাব্দ`;
+            document.getElementById('modalHijri').innerHTML = `${h} <span class="eng-num">1447</span> হিজরি`;
+            document.getElementById('modalBangla').innerHTML = `${b} <span class="eng-num">1433</span> বঙ্গাব্দ`;
             document.getElementById('detailModal').style.display = 'flex';
         }
 
