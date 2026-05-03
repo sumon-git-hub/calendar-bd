@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Smart Calendar</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -30,7 +32,6 @@
         .friday-text { color: #ef4444 !important; }
         .red-star { color: #ef4444; font-weight: bold; }
         .footer-note { text-align: center; color: #ef4444; font-weight: 600; font-size: 14px; padding: 20px 10px; }
-
         #detailModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: white; width: 100%; max-width: 350px; border-radius: 20px; padding: 25px; text-align: center; }
     </style>
@@ -39,14 +40,15 @@
 
     <div class="main-card shadow-lg">
         <div class="header-section">
-            <div class="menu-btn" onclick="toggleAdmin()">⋮</div>
+            <div class="menu-btn" onclick="checkAdmin()">⋮</div>
             <div id="adminPanel" class="admin-dropdown">
-                <h3 class="text-xs font-bold mb-2 text-yellow-400">Hijri Adjustment</h3>
+                <h3 class="text-xs font-bold mb-2 text-yellow-400">অ্যাডমিন কন্ট্রোল</h3>
                 <div class="flex items-center justify-between gap-2">
                     <button onclick="adjustHijri(-1, event)" class="bg-red-500 w-8 h-8 rounded">-</button>
                     <span id="adjVal" class="font-bold eng-num">0</span>
                     <button onclick="adjustHijri(1, event)" class="bg-emerald-500 w-8 h-8 rounded">+</button>
                 </div>
+                <button onclick="logoutAdmin()" class="mt-3 text-[10px] text-gray-400 underline">লগ আউট</button>
             </div>
             <h1 class="title-text">My Smart Calendar</h1>
             <div id="liveTime" class="clock-pill">00:00:00 AM</div>
@@ -86,27 +88,61 @@
     </div>
 
     <script>
+        // --- Firebase Configuration ---
+        // আপনি Firebase কনসোল থেকে আপনার নিজস্ব কী গুলো এখানে বসাতে পারবেন
+        const firebaseConfig = {
+            databaseURL: "https://YOUR_DATABASE_URL.firebaseio.com/" 
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
         let currentYear = 2026;
         let currentMonth = 4; 
-        let hijriAdjustment = parseInt(localStorage.getItem('hijriAdj')) || 0;
+        let hijriAdjustment = 0;
+        let isAdmin = false;
 
-        const hijriMonths = ["যিলক্বদ", "যিলহজ্ব", "মুহাররম", "সফর", "রবিউল আউয়াল", "রবিউস সানি", "জমাদিউল আউয়াল", "জমাদিউস সানি", "রজব", "শাবান", "রমজান", "শাওয়াল"];
-        const banglaMonths = ["বৈশাখ", "জ্যৈষ্ঠ", "আষাঢ়", "শ্রাবণ", "ভাদ্র", "আশ্বিন", "কার্তিক", "অগ্রহায়ণ", "পৌষ", "মাঘ", "ফাল্গুন", "চৈত্র"];
-        const engMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        const dayNamesBn = ["রবিবার", "সোমবার", "মঙ্গলবার", "বুধবার", "বৃহস্পতিবার", "শুক্রবার", "শনিবার"];
+        // Firebase থেকে ডাটা লোড করা
+        db.ref('hijriAdj').on('value', (snapshot) => {
+            hijriAdjustment = snapshot.val() || 0;
+            renderCalendar(currentYear, currentMonth);
+        });
 
-        function toggleAdmin() {
+        function checkAdmin() {
+            if(isAdmin) {
+                togglePanel();
+            } else {
+                let pass = prompt("অ্যাডমিন পাসওয়ার্ড দিন:");
+                if(pass === "1234") { // ডিফল্ট পাসওয়ার্ড
+                    isAdmin = true;
+                    togglePanel();
+                } else {
+                    alert("ভুল পাসওয়ার্ড!");
+                }
+            }
+        }
+
+        function togglePanel() {
             const panel = document.getElementById('adminPanel');
             panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function logoutAdmin() {
+            isAdmin = false;
+            document.getElementById('adminPanel').style.display = 'none';
         }
 
         function adjustHijri(val, e) {
             e.stopPropagation();
             hijriAdjustment += val;
-            localStorage.setItem('hijriAdj', hijriAdjustment);
-            document.getElementById('adjVal').innerText = hijriAdjustment;
-            renderCalendar(currentYear, currentMonth);
+            // Firebase এ সেভ করা (যাতে সব ইউজার আপডেট পায়)
+            db.ref('hijriAdj').set(hijriAdjustment);
         }
+
+        // বাকি ক্যালেন্ডার লজিক আগের মতোই...
+        const hijriMonths = ["যিলক্বদ", "যিলহজ্ব", "মুহাররম", "সফর", "রবিউল আউয়াল", "রবিউস সানি", "জমাদিউল আউয়াল", "জমাদিউস সানি", "রজব", "শাবান", "রমজান", "শাওয়াল"];
+        const banglaMonths = ["বৈশাখ", "জ্যৈষ্ঠ", "আষাঢ়", "শ্রাবণ", "ভাদ্র", "আশ্বিন", "কার্তিক", "অগ্রহায়ণ", "পৌষ", "মাঘ", "ফাল্গুন", "চৈত্র"];
+        const engMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const dayNamesBn = ["রবিবার", "সোমবার", "মঙ্গলবার", "বুধবার", "বৃহস্পতিবার", "শুক্রবার", "শনিবার"];
 
         function renderCalendar(year, month) {
             const grid = document.getElementById('calendarGrid');
@@ -128,7 +164,7 @@
                 let hMonthIdx = 0; 
                 let hDate = hTotalDays;
                 while(hDate > 29) { hDate -= 29; hMonthIdx = (hMonthIdx + 1) % 12; }
-                if(hDate <= 0) { hDate += 29; hMonthIdx = (hMonthIdx - 1 + 12) % 12; }
+                while(hDate <= 0) { hDate += 29; hMonthIdx = (hMonthIdx - 1 + 12) % 12; }
 
                 let bTotalDays = Math.floor((dateObj - new Date(2026, 3, 14)) / (1000*60*60*24)) + 1;
                 let bMonthIdx = 0; 
@@ -169,14 +205,9 @@
             else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
             renderCalendar(currentYear, currentMonth);
         }
-
-        function updateClock() {
-            document.getElementById('liveTime').innerText = new Date().toLocaleTimeString('en-US', { hour12: true });
-        }
-
+        function updateClock() { document.getElementById('liveTime').innerText = new Date().toLocaleTimeString('en-US', { hour12: true }); }
         setInterval(updateClock, 1000);
         updateClock();
-        renderCalendar(currentYear, currentMonth);
     </script>
 </body>
 </html>
