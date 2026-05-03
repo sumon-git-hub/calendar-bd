@@ -53,7 +53,7 @@
         </div>
 
         <div class="date-display">
-            <h2 id="topDayName" class="text-2xl font-bold text-emerald-800 mb-4">লোড হচ্ছে...</h2>
+            <h2 id="topDayName" class="text-2xl font-bold text-emerald-800 mb-4">আজ রবিবার</h2>
             <div id="topEng" class="date-row eng-num"></div>
             <div id="topHijri" class="date-row"></div>
             <div id="topBangla" class="date-row"></div>
@@ -125,26 +125,25 @@
 
             for (let i = 0; i < startPos; i++) grid.innerHTML += '<div></div>';
 
-            const baseDate = new Date(2026, 4, 3); // ৩ মে ২০২৬ বেস
+            const baseDate = new Date(2026, 4, 3); // বেস ডেট
             
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateObj = new Date(year, month, day);
                 const diffDays = Math.floor((dateObj - baseDate) / (1000*60*60*24));
                 
-                // আরবি ক্যালকুলেশন
-                // ২৯ দিন পর পর মাস পরিবর্তন, কিন্তু ১ যোগ করলে ১ তারিখ ৩০ হবে
-                let hTotal = diffDays + 14 + hijriAdjustment;
+                // আরবি লজিক ফিক্স
+                let totalH = diffDays + 14 + hijriAdjustment;
                 let hMonthIdx = 0;
                 
-                // ২৯ দিনের বেস সাইকেল
-                while (hTotal > 29) { hTotal -= 29; hMonthIdx = (hMonthIdx + 1) % 12; }
-                while (hTotal <= 0) { hMonthIdx = (hMonthIdx - 1 + 12) % 12; hTotal += 29; }
+                // বেস সাইকেল ২৯ দিনের
+                while (totalH > 29) { totalH -= 29; hMonthIdx = (hMonthIdx + 1) % 12; }
+                while (totalH <= 0) { hMonthIdx = (hMonthIdx - 1 + 12) % 12; totalH += 29; }
 
-                let finalHDate = hTotal;
+                let finalHDate = totalH;
                 let finalHMonthIdx = hMonthIdx;
 
                 // সুমন ভাইয়ের কন্ডিশন: ১ তারিখ ৩০ হবে যদি অ্যাডজাস্টমেন্ট থাকে
-                if (hijriAdjustment > 0 && hTotal === 1) {
+                if (hijriAdjustment > 0 && totalH === 1) {
                     finalHDate = 30;
                     finalHMonthIdx = (hMonthIdx - 1 + 12) % 12;
                 }
@@ -157,7 +156,6 @@
                 while(bDate > bDaysInMonth[bMonthIdx]) { bDate -= bDaysInMonth[bMonthIdx]; bMonthIdx = (bMonthIdx + 1) % 12; }
 
                 const isToday = (dateObj.toDateString() === new Date().toDateString());
-                let hDisplay = (finalHDate === 1) ? `1<span class="red-star">*</span>` : finalHDate;
 
                 grid.innerHTML += `
                     <div class="day-cell ${isToday ? 'today-mark' : ''}">
@@ -182,8 +180,8 @@
             renderCalendar(currentYear, currentMonth);
         }
         function updateClock() { 
-            const timeEl = document.getElementById('liveTime');
-            if(timeEl) timeEl.innerText = new Date().toLocaleTimeString('en-US', { hour12: true }); 
+            const el = document.getElementById('liveTime');
+            if(el) el.innerText = new Date().toLocaleTimeString('en-US', { hour12: true }); 
         }
         setInterval(updateClock, 1000);
         updateClock();
