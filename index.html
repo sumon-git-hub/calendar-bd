@@ -9,48 +9,48 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Hind Siliguri', sans-serif; background-color: #f1f5f9; }
+        body { font-family: 'Hind Siliguri', sans-serif; background-color: #f8fafc; }
         .eng { font-family: 'Poppins', sans-serif; }
-        .main-card { max-width: 450px; margin: 0 auto; background: white; min-height: 100vh; display: flex; flex-direction: column; }
-        .header { background: #059669; padding: 25px; text-align: center; color: white; border-radius: 0 0 25px 25px; }
-        .grid-7 { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; padding: 12px; text-align: center; }
-        .day-box { height: 62px; display: flex; flex-direction: column; justify-content: center; background: #fff; border: 1px solid #f1f5f9; border-radius: 12px; }
-        .today { background: #2563eb !important; color: white !important; border: none; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3); }
+        .main-card { max-width: 450px; margin: 0 auto; background: white; min-height: 100vh; display: flex; flex-direction: column; border-radius: 20px; overflow: hidden; }
+        .header { background: #059669; padding: 25px; text-align: center; color: white; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; }
+        .grid-7 { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; padding: 12px; text-align: center; }
+        .day-box { min-height: 60px; display: flex; flex-direction: column; justify-content: center; background: #fff; border: 1px solid #f1f5f9; border-radius: 12px; padding: 4px; }
+        .today { background: #2563eb !important; color: white !important; border: none; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4); }
     </style>
 </head>
 <body>
 
 <div class="main-card shadow-2xl">
     <div class="header">
-        <h1 class="text-xl font-bold">My Smart Calendar</h1>
-        <div id="liveClock" class="text-2xl font-bold mt-2 eng tracking-wider">00:00:00 AM</div>
+        <h1 class="text-xl font-bold tracking-tight">My Smart Calendar</h1>
+        <div id="liveClock" class="text-3xl font-bold mt-2 eng">00:00:00 AM</div>
     </div>
 
     <div class="p-6 text-center">
-        <h2 id="topDayName" class="text-2xl font-bold text-emerald-800">আজ রবিবার</h2>
-        <div id="topEng" class="text-lg text-gray-500 mt-1 eng font-semibold tracking-tight"></div>
-        <div id="topHij" class="text-lg text-gray-600 font-medium"></div>
-        <div id="topBan" class="text-lg text-gray-600 font-medium"></div>
+        <h2 id="topDayName" class="text-2xl font-bold text-emerald-800">আজ লোড হচ্ছে...</h2>
+        <div id="topEng" class="text-lg text-gray-500 mt-1 eng font-semibold"></div>
+        <div id="topHij" class="text-lg text-gray-600 font-bold"></div>
+        <div id="topBan" class="text-lg text-gray-600 font-bold"></div>
     </div>
 
     <div class="flex justify-between items-center px-10 py-2">
-        <button onclick="moveMonth(-1)" class="text-3xl font-bold p-2 text-gray-300">❮</button>
-        <div id="monthLabel" class="text-xl font-bold text-gray-800 eng">May 2026</div>
-        <button onclick="moveMonth(1)" class="text-3xl font-bold p-2 text-gray-300">❯</button>
+        <button onclick="moveMonth(-1)" class="text-4xl font-bold p-2 text-gray-200 hover:text-emerald-500 transition">❮</button>
+        <div id="monthLabel" class="text-2xl font-bold text-gray-800 eng">May 2026</div>
+        <button onclick="moveMonth(1)" class="text-4xl font-bold p-2 text-gray-200 hover:text-emerald-500 transition">❯</button>
     </div>
 
-    <div class="grid-7 text-[10px] font-bold text-gray-400 uppercase tracking-widest eng mt-2">
+    <div class="grid-7 text-[11px] font-bold text-gray-400 uppercase tracking-widest eng mt-2">
         <div>Sat</div><div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div class="text-red-500">Fri</div>
     </div>
     <div id="calGrid" class="grid-7"></div>
 
-    <div class="mt-auto p-6 text-center text-[12px] text-red-600 font-bold">
+    <div class="mt-auto p-6 text-center text-[12px] text-red-600 font-extrabold tracking-wide">
         * আরবি তারিখ চাঁদ দেখার উপর নির্ভরশীল
     </div>
 </div>
 
 <script>
-    // আপনার ফায়ারবেস ডাটাবেজ ইউআরএল এখানে দিন
+    // আপনার ফায়ারবেস পাসওয়ার্ড/লিঙ্ক এখানে দিন
     const firebaseConfig = { databaseURL: "https://YOUR_DATABASE_URL.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
@@ -62,10 +62,16 @@
     const engMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const bnDays = ["রবিবার", "সোমবার", "মঙ্গলবার", "বুধবার", "বৃহস্পতিবার", "শুক্রবার", "শনিবার"];
 
-    // ডাটাবেজ থেকে অ্যাডজাস্টমেন্ট ভ্যালু পড়া
+    // প্রথমবারেই ক্যালেন্ডার এঁকে ফেলা যাতে "লোড হচ্ছে" না থাকে
+    updateUI();
+
+    // এরপর ডাটাবেজ থেকে আপডেট নেওয়া
     db.ref('hijriAdj').on('value', (snap) => {
         adjH = snap.val() || 0;
-        updateUI(); // ভ্যালু আসামাত্র ক্যালেন্ডার রিফ্রেশ হবে
+        updateUI();
+    }, (error) => {
+        console.log("Firebase Error, but UI is fine.");
+        updateUI();
     });
 
     function updateUI() {
@@ -80,30 +86,32 @@
 
         for (let i = 0; i < offset; i++) grid.innerHTML += '<div></div>';
 
-        const base = new Date(2026, 4, 3); // বেস তারিখ ৩ মে
+        const base = new Date(2026, 4, 3); // ৩ মে ২০২৬ বেস
 
         for (let d = 1; d <= totalDays; d++) {
             const date = new Date(viewY, viewM, d);
             const diff = Math.round((date - base) / 86400000);
             
+            // হিজরি লজিক
             let hD = ((diff + 14) % 29 + 29) % 29;
             if(hD === 0) hD = 29;
             let hMIdx = (Math.floor((diff + 14) / 29) % 12 + 12) % 12;
 
-            // যদি adjH এর মান ১ হয়, তবে ১ তারিখকে ৩০ বানানো হবে
+            // অ্যাডজাস্টমেন্ট লজিক (১ তারিখকে ৩০ করা)
             if (adjH > 0 && hD === 1) { 
                 hD = 30; 
                 hMIdx = (hMIdx - 1 + 12) % 12; 
             }
 
+            // বাংলা লজিক
             let bD = Math.round((date - new Date(2026, 3, 14)) / 86400000) + 1;
             let bMIdx = 0, bLens = [31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30, 30];
             for(let j=0; j<12; j++){ if(bD <= bLens[j]){ bMIdx = j; break; } bD -= bLens[j]; }
 
             const isT = (date.toDateString() === new Date().toDateString());
             grid.innerHTML += `<div class="day-box ${isT?'today':''}">
-                <div class="font-bold text-lg eng leading-tight">${d}</div>
-                <div class="text-[9px] font-bold opacity-80">${hD}/${bD}</div>
+                <div class="font-bold text-xl eng leading-tight">${d}</div>
+                <div class="text-[10px] font-bold opacity-80">${hD}/${bD}</div>
             </div>`;
 
             if(isT) {
@@ -116,10 +124,9 @@
     }
 
     function moveMonth(v) { viewM += v; if(viewM>11){viewM=0;viewY++;} else if(viewM<0){viewM=11;viewY--;} updateUI(); }
-    setInterval(() => { document.getElementById('liveClock').innerText = new Date().toLocaleTimeString('en-US'); }, 1000);
-    
-    // পেজ লোড হওয়ার সাথে সাথে একবার রেন্ডার করা
-    updateUI();
+    setInterval(() => { 
+        document.getElementById('liveClock').innerText = new Date().toLocaleTimeString('en-US'); 
+    }, 1000);
 </script>
 </body>
 </html>
