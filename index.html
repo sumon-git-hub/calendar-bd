@@ -3,115 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>মাই স্মার্ট ক্যালেন্ডার</title>
+    <title>My Smart Calendar</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
-    
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
-
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Poppins:wght@600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Hind Siliguri', sans-serif; background-color: #f8fafc; }
-        .main-container { max-width: 450px; margin: 0 auto; background: white; min-height: 100vh; }
-        .header-green { background-color: #059669; padding: 25px 20px; text-align: center; color: white; border-radius: 0 0 30px 30px; }
-        .clock-pill { background: rgba(0,0,0,0.15); display: inline-block; padding: 8px 30px; border-radius: 50px; font-size: 24px; font-weight: bold; margin-top: 15px; border: 1px solid rgba(255,255,255,0.2); }
-        .diamond { color: #d97706; font-size: 1.2rem; }
-        .date-row { font-size: 19px; font-weight: 600; color: #334155; margin: 8px 0; }
-        .month-header { font-size: 30px; font-weight: 800; color: #1e293b; text-align: center; margin-top: 20px; }
-        .labels-flex { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; color: #64748b; border-bottom: 1px solid #e2e8f0; padding: 8px 0; margin-bottom: 15px; }
-        .grid-7 { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-        .day-label { text-align: center; font-weight: bold; font-size: 14px; color: #94a3b8; padding-bottom: 10px; }
-        .cell { height: 65px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #f1f5f9; border-radius: 12px; }
-        .num-main { font-size: 19px; font-weight: bold; color: #1e293b; }
-        .num-sub { font-size: 10px; color: #64748b; font-weight: 600; margin-top: 2px; }
-        .active-blue { background: #3b82f6 !important; color: white !important; }
-        .active-blue * { color: white !important; }
-        .red-text { color: #ef4444 !important; }
+        body { font-family: 'Hind Siliguri', sans-serif; background-color: #f3f4f6; }
+        .main-card { max-width: 450px; margin: 0 auto; background: white; min-height: 100vh; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .header-area { background-color: #059669; padding: 30px 20px; text-align: center; color: white; border-radius: 0 0 25px 25px; }
+        .clock-display { background: rgba(255,255,255,0.2); display: inline-block; padding: 10px 35px; border-radius: 50px; font-size: 26px; font-weight: bold; margin-top: 15px; font-family: 'Poppins', sans-serif; }
+        .date-container { padding: 30px 20px; text-align: center; border-bottom: 1px solid #f1f5f9; }
+        .date-line { font-size: 21px; font-weight: 600; color: #374151; margin: 12px 0; }
+        .highlight-month { background-color: #fef08a; padding: 2px 8px; border-radius: 6px; color: #166534; font-weight: 700; }
+        .month-title { font-size: 34px; font-weight: 800; color: #1f2937; text-align: center; margin-top: 25px; font-family: 'Poppins', sans-serif; }
+        .grid-7 { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; padding: 0 15px; }
+        .day-head { text-align: center; font-weight: bold; font-size: 15px; color: #9ca3af; padding-bottom: 12px; }
+        .calendar-cell { height: 70px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #f9fafb; border-radius: 15px; border: 1px solid #f1f5f9; }
+        .num-eng { font-size: 22px; font-weight: 700; color: #111827; }
+        .num-sub { font-size: 11px; color: #6b7280; font-weight: 600; margin-top: 3px; }
+        .today-active { background: #2563eb !important; color: white !important; box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.4); }
+        .today-active * { color: white !important; }
+        .holiday { color: #ef4444 !important; }
     </style>
 </head>
 <body>
 
-    <div class="main-container shadow-2xl">
-        <div class="header-green">
-            <h1 class="text-xl font-bold tracking-widest">// মাই স্মার্ট ক্যালেন্ডার //</h1>
-            <div id="clock" class="clock-pill">০০:০০:০০ AM</div>
+    <div class="main-card">
+        <div class="header-area">
+            <h1 class="text-3xl font-bold tracking-tight" style="font-family: 'Poppins', sans-serif;">My Smart Calendar</h1>
+            <div id="realtimeClock" class="clock-display">00:00:00 AM</div>
         </div>
 
-        <div class="p-6 text-center border-b">
-            <h2 class="text-2xl font-bold text-emerald-800 mb-3">আজ রবিবার</h2>
-            <div class="date-row"><span class="diamond">♢</span> ০৩ মে ২০২৬ খ্রিষ্টাব্দ</div>
-            <div id="hijriToday" class="date-row"><span class="diamond">♢</span> ১৪ যিলক্বদ ১৪৪৭ হিজরি</div>
-            <div class="date-row"><span class="diamond">♢</span> ২০ বৈশাখ ১৪৩৩ বঙ্গাব্দ</div>
+        <div class="date-container">
+            <h2 class="text-3xl font-bold text-emerald-700 mb-5">আজ রবিবার</h2>
+            <div class="date-line">০৩ মে ২০২৬ খ্রিষ্টাব্দ</div>
+            <div class="date-line"><span class="highlight-month">১৪ যিলক্বদ</span> ১৪৪৭ হিজরি</div>
+            <div class="date-line"><span class="highlight-month">২০ বৈশাখ</span> ১৪৩৩ বঙ্গাব্দ</div>
         </div>
 
-        <div class="p-5">
-            <div class="month-header">MAY 2026</div>
-            <div class="labels-flex px-1">
-                <span>যিলকদ - যিলহজ্ব</span>
-                <span>বৈশাখ - জ্যৈষ্ঠ</span>
+        <div class="pb-10">
+            <div class="month-title">MAY 2026</div>
+            <div class="flex justify-between px-6 text-sm font-bold text-slate-500 border-b mx-4 mb-4 pb-2">
+                <span class="highlight-month">যিলকদ - যিলহজ্ব</span>
+                <span class="highlight-month">বৈশাখ - জ্যৈষ্ঠ</span>
             </div>
 
             <div class="grid-7 mb-2">
-                <div class="day-label">শনি</div><div class="day-label">রবি</div><div class="day-label">সোম</div>
-                <div class="day-label">মঙ্গল</div><div class="day-label">বুধ</div><div class="day-label">বৃহ</div>
-                <div class="day-label red-text">শুক্র</div>
+                <div class="day-head">শনি</div><div class="day-head">রবি</div><div class="day-head">সোম</div>
+                <div class="day-head">মঙ্গল</div><div class="day-head">বুধ</div><div class="day-head">বৃহ</div>
+                <div class="day-head holiday">শুক্র</div>
             </div>
 
-            <div id="calendarBody" class="grid-7">
+            <div id="calGrid" class="grid-7">
                 </div>
         </div>
     </div>
 
     <script>
-        const toBn = n => n.toString().replace(/\d/g, d => "০১২৩৪৫৬৭৮৯"[d]);
-        let hijriAdj = 0; // এটি ডাটাবেস থেকে আপডেট হবে
+        const toBengali = n => n.toString().replace(/\d/g, d => "০১২৩৪৫৬৭৮৯"[d]);
 
-        function renderCalendar() {
-            const body = document.getElementById('calendarBody');
-            body.innerHTML = '';
-            
-            const totalDays = 31; 
-            const startEmptyCells = 6; // মে ২০২৬ শুরু শনিবার (৬ষ্ঠ দিন যদি গ্রিড শুরু হয় শনি থেকে)
+        function createCalendar() {
+            const grid = document.getElementById('calGrid');
+            const totalDays = 31;
+            const offset = 6; // মে ২০২৬ শুরু হচ্ছে শনিবার থেকে
 
-            // খালি ঘর
-            for(let i=0; i<startEmptyCells; i++) {
-                body.innerHTML += '<div></div>';
+            // প্রথম দিকের খালি ঘর
+            for(let i=0; i<offset; i++) {
+                grid.innerHTML += '<div></div>';
             }
 
-            // তারিখ জেনারেশন
             for(let d=1; d<=totalDays; d++) {
                 const isToday = (d === 3);
-                const isFri = ((d + startEmptyCells) % 7 === 0);
+                const isFriday = ((d + offset) % 7 === 0);
                 
-                // হিজরি ও বাংলা তারিখের সাধারণ হিসাব
-                const hDate = d + 13 + hijriAdj; 
-                const bDate = (d + 17) > 31 ? (d + 17 - 31) : (d + 17);
+                // তারিখের হিসাব
+                const hijriDate = d + 13;
+                const banglaDate = (d + 17) > 31 ? (d + 17 - 31) : (d + 17);
 
-                body.innerHTML += `
-                    <div class="cell ${isToday ? 'active-blue' : ''}">
-                        <div class="num-main ${isFri && !isToday ? 'red-text' : ''}">${toBn(d)}</div>
-                        <div class="num-sub">${toBn(hDate)}/${toBn(bDate)}</div>
+                grid.innerHTML += `
+                    <div class="calendar-cell ${isToday ? 'today-active' : ''}">
+                        <div class="num-eng ${isFriday && !isToday ? 'holiday' : ''}">${toBengali(d)}</div>
+                        <div class="num-sub">${toBengali(hijriDate)}/${toBengali(banglaDate)}</div>
                     </div>
                 `;
-                
-                if(isToday) {
-                    document.getElementById('hijriToday').innerHTML = `<span class="diamond">♢</span> ${toBn(hDate)} যিলক্বদ ১৪৪৭ হিজরি`;
-                }
             }
         }
 
-        function updateClock() {
+        function runClock() {
             const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString('bn-BD', { hour12: true });
+            const options = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+            document.getElementById('realtimeClock').innerText = now.toLocaleTimeString('en-US', options);
         }
 
-        setInterval(updateTime => {
-            updateClock();
-        }, 1000);
-
-        updateClock();
-        renderCalendar();
+        setInterval(runClock, 1000);
+        runClock();
+        createCalendar();
     </script>
 </body>
 </html>
