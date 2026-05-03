@@ -27,16 +27,16 @@
     </div>
 
     <div class="p-6 text-center">
-        <h2 id="topDayName" class="text-2xl font-bold text-emerald-800">লোড হচ্ছে...</h2>
+        <h2 id="topDayName" class="text-2xl font-bold text-emerald-800">আজ রবিবার</h2>
         <div id="topEng" class="text-lg text-gray-500 mt-1 eng font-semibold tracking-tight"></div>
         <div id="topHij" class="text-lg text-gray-600 font-medium"></div>
         <div id="topBan" class="text-lg text-gray-600 font-medium"></div>
     </div>
 
     <div class="flex justify-between items-center px-10 py-2">
-        <button onclick="moveMonth(-1)" class="text-3xl font-bold p-2 text-gray-300 hover:text-emerald-600">❮</button>
+        <button onclick="moveMonth(-1)" class="text-3xl font-bold p-2 text-gray-300">❮</button>
         <div id="monthLabel" class="text-xl font-bold text-gray-800 eng">May 2026</div>
-        <button onclick="moveMonth(1)" class="text-3xl font-bold p-2 text-gray-300 hover:text-emerald-600">❯</button>
+        <button onclick="moveMonth(1)" class="text-3xl font-bold p-2 text-gray-300">❯</button>
     </div>
 
     <div class="grid-7 text-[10px] font-bold text-gray-400 uppercase tracking-widest eng mt-2">
@@ -50,7 +50,7 @@
 </div>
 
 <script>
-    // আপনার Firebase Config এখানে বসান
+    // আপনার ফায়ারবেস ডাটাবেজ ইউআরএল এখানে দিন
     const firebaseConfig = { databaseURL: "https://YOUR_DATABASE_URL.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
@@ -62,13 +62,10 @@
     const engMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const bnDays = ["রবিবার", "সোমবার", "মঙ্গলবার", "বুধবার", "বৃহস্পতিবার", "শুক্রবার", "শনিবার"];
 
-    // প্রথমে একবার রেন্ডার করে নেওয়া যাতে স্ক্রিন সাদা না থাকে
-    updateUI();
-
-    // এরপর Firebase থেকে ডেটা আসলে আপডেট হবে
+    // ডাটাবেজ থেকে অ্যাডজাস্টমেন্ট ভ্যালু পড়া
     db.ref('hijriAdj').on('value', (snap) => {
         adjH = snap.val() || 0;
-        updateUI();
+        updateUI(); // ভ্যালু আসামাত্র ক্যালেন্ডার রিফ্রেশ হবে
     });
 
     function updateUI() {
@@ -83,7 +80,7 @@
 
         for (let i = 0; i < offset; i++) grid.innerHTML += '<div></div>';
 
-        const base = new Date(2026, 4, 3); // বেস ৩ মে ২০২৬
+        const base = new Date(2026, 4, 3); // বেস তারিখ ৩ মে
 
         for (let d = 1; d <= totalDays; d++) {
             const date = new Date(viewY, viewM, d);
@@ -93,7 +90,7 @@
             if(hD === 0) hD = 29;
             let hMIdx = (Math.floor((diff + 14) / 29) % 12 + 12) % 12;
 
-            // ১ তারিখকে ৩০ বানানোর স্পেশাল লজিক
+            // যদি adjH এর মান ১ হয়, তবে ১ তারিখকে ৩০ বানানো হবে
             if (adjH > 0 && hD === 1) { 
                 hD = 30; 
                 hMIdx = (hMIdx - 1 + 12) % 12; 
@@ -120,6 +117,9 @@
 
     function moveMonth(v) { viewM += v; if(viewM>11){viewM=0;viewY++;} else if(viewM<0){viewM=11;viewY--;} updateUI(); }
     setInterval(() => { document.getElementById('liveClock').innerText = new Date().toLocaleTimeString('en-US'); }, 1000);
+    
+    // পেজ লোড হওয়ার সাথে সাথে একবার রেন্ডার করা
+    updateUI();
 </script>
 </body>
 </html>
