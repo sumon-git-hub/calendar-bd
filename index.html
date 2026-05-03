@@ -3,141 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MySmartCalendar - স্মার্ট ক্যালেন্ডার</title>
+    <title>MySmartCalendar</title>
     <style>
-        :root {
-            --primary: #1a73e8;
-            --secondary: #1e8e3e;
-            --accent: #d93025;
-            --bg: #f8f9fa;
-        }
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background-color: var(--bg);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .calendar-card {
-            background: white;
-            padding: 30px;
-            border-radius: 24px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            text-align: center;
-            width: 90%;
-            max-width: 400px;
-            position: relative;
-        }
-        h1 { color: var(--primary); font-size: 22px; margin-bottom: 25px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        .date-section { margin: 20px 0; padding: 10px; border-radius: 12px; transition: transform 0.3s; }
-        .date-section:hover { transform: scale(1.02); background: #fafafa; }
-        .label { font-size: 13px; color: #777; text-transform: uppercase; letter-spacing: 1px; }
-        .date-text { font-size: 22px; font-weight: bold; margin-top: 5px; }
-        .en { color: var(--primary); }
-        .bn { color: var(--secondary); }
-        .ar { color: var(--accent); }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eef2f3; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 40px; border-radius: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 320px; }
+        h1 { color: #2c3e50; font-size: 22px; margin-bottom: 20px; text-decoration: underline; }
+        .date-box { margin: 15px 0; padding: 10px; border-radius: 10px; }
+        .label { font-size: 12px; color: #888; display: block; margin-bottom: 5px; }
+        .value { font-size: 20px; font-weight: bold; }
+        .en { color: #2980b9; }
+        .bn { color: #27ae60; }
+        .ar { color: #c0392b; }
         
-        /* অ্যাডমিন প্যানেল স্টাইল */
-        .admin-btn { position: absolute; bottom: 10px; right: 10px; background: none; border: none; color: #ddd; cursor: pointer; font-size: 10px; }
-        #admin-panel { display: none; margin-top: 20px; padding: 15px; border: 1px dashed #ccc; border-radius: 10px; background: #fffde7; }
-        input { width: 60px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
-        button.save-btn { background: var(--primary); color: white; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer; margin-left: 5px; }
+        /* Admin Button & Panel */
+        #admin-btn { position: fixed; bottom: 10px; right: 10px; font-size: 10px; color: #ccc; cursor: pointer; border: none; background: none; }
+        #admin-panel { display: none; background: #fff9c4; padding: 10px; border-radius: 8px; margin-top: 15px; border: 1px solid #fbc02d; }
+        input { width: 50px; text-align: center; }
+        button.save { background: #2c3e50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div class="calendar-card">
+<div class="card">
     <h1>MySmartCalendar</h1>
     
-    <div class="date-section">
+    <div class="date-box">
         <span class="label">ইংরেজি তারিখ</span>
-        <div id="en-date" class="date-text en">লোড হচ্ছে...</div>
+        <div id="en" class="value en">...</div>
     </div>
 
-    <div class="date-section">
+    <div class="date-box">
         <span class="label">বাংলা তারিখ</span>
-        <div id="bn-date" class="date-text bn">লোড হচ্ছে...</div>
+        <div id="bn" class="value bn">...</div>
     </div>
 
-    <div class="date-section">
-        <span class="label">হিজরি (আরবি) তারিখ</span>
-        <div id="ar-date" class="date-text ar">লোড হচ্ছে...</div>
+    <div class="date-box">
+        <span class="label">আরবি তারিখ</span>
+        <div id="ar" class="value ar">...</div>
     </div>
 
-    <button class="admin-btn" onclick="toggleAdmin()">Admin</button>
-
+    <button id="admin-btn" onclick="document.getElementById('admin-panel').style.display='block'">Admin</button>
+    
     <div id="admin-panel">
-        <span style="font-size: 12px; display: block; margin-bottom: 5px;">আরবি তারিখ সমন্বয় করুন (উদা: +1 বা -1)</span>
-        <input type="number" id="adj-value" value="0">
-        <button class="save-btn" onclick="saveAdjustment()">সেভ করুন</button>
+        <label style="font-size: 12px;">আরবি তারিখ কমান/বাড়ান:</label><br>
+        <input type="number" id="adj" value="0">
+        <button class="save" onclick="saveAdj()">Save</button>
     </div>
 </div>
 
 <script>
-    // লোকাল স্টোরেজ থেকে অ্যাডজাস্টমেন্ট ভ্যালু নেওয়া
-    let adjustment = parseInt(localStorage.getItem('hijriAdj')) || 0;
+    let adjustment = parseInt(localStorage.getItem('arAdj')) || 0;
 
-    function updateCalendar() {
+    function render() {
         const now = new Date();
 
-        // ১. ইংরেজি তারিখ
-        const enOptions = { day: 'numeric', month: 'long', year: 'numeric' };
-        document.getElementById('en-date').innerText = now.toLocaleDateString('bn-BD', enOptions);
+        // ১. ইংরেজি
+        document.getElementById('en').innerText = now.toLocaleDateString('bn-BD', {day:'numeric', month:'long', year:'numeric'});
 
-        // ২. আরবি তারিখ (অ্যাডজাস্টমেন্টসহ)
-        const adjDate = new Date();
-        adjDate.setDate(now.getDate() + adjustment);
-        const arOptions = { day: 'numeric', month: 'long', year: 'numeric' };
-        document.getElementById('ar-date').innerText = new Intl.DateTimeFormat('bn-BD-u-ca-islamic-umalqura', arOptions).format(adjDate);
+        // ২. আরবি (অ্যাডজাস্টমেন্ট সহ)
+        const arDate = new Date();
+        arDate.setDate(now.getDate() + adjustment);
+        const options = { day: 'numeric', month: 'long', year: 'numeric' };
+        document.getElementById('ar').innerText = new Intl.DateTimeFormat('bn-BD-u-ca-islamic-umalqura', options).format(arDate);
 
-        // ৩. বাংলা তারিখ (বাংলাদেশি নিয়ম)
-        document.getElementById('bn-date').innerText = getBengaliDate(now);
+        // ৩. বাংলা (বাংলাদেশি নিয়ম)
+        document.getElementById('bn').innerText = getBnDate(now);
     }
 
-    function getBengaliDate(date) {
-        const d = date.getDate();
-        const m = date.getMonth() + 1;
-        const y = date.getFullYear();
-        let bYear = y - 593;
-        const bnMonths = ["বৈশাখ", "জ্যৈষ্ঠ", "আষাঢ়", "শ্রাবণ", "ভাদ্র", "আশ্বিন", "কার্তিক", "অগ্রহায়ণ", "পৌষ", "মাঘ", "ফাল্গুন", "চৈত্র"];
-        const monthDays = [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30];
-        if ((y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0)) monthDays[10] = 31;
+    function getBnDate(date) {
+        const d = date.getDate(), m = date.getMonth() + 1, y = date.getFullYear();
+        let bY = y - 593;
+        const bnM = ["বৈশাখ", "জ্যৈষ্ঠ", "আষাঢ়", "শ্রাবণ", "ভাদ্র", "আশ্বিন", "কার্তিক", "অগ্রহায়ণ", "পৌষ", "মাঘ", "ফাল্গুন", "চৈত্র"];
+        const bnD = [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30];
+        if ((y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0)) bnD[10] = 31;
 
-        const refDate = new Date(y, 3, 14);
-        let diffDays = Math.floor((date - refDate) / (1000 * 60 * 60 * 24));
-
-        if (diffDays < 0) {
-            bYear -= 1;
-            const prevRef = new Date(y - 1, 3, 14);
-            diffDays = Math.floor((date - prevRef) / (1000 * 60 * 60 * 24));
+        let diff = Math.floor((date - new Date(y, 3, 14)) / 86400000);
+        if (diff < 0) {
+            bY--;
+            diff = Math.floor((date - new Date(y - 1, 3, 14)) / 86400000);
         }
 
-        let mIdx = 0;
-        while (diffDays >= monthDays[mIdx]) {
-            diffDays -= monthDays[mIdx];
-            mIdx++;
-        }
-        return `${diffDays + 1} ${bnMonths[mIdx]}, ${bYear}`;
+        let i = 0;
+        while (diff >= bnD[i]) { diff -= bnD[i]; i++; }
+        return `${diff + 1} ${bnM[i]}, ${bY}`;
     }
 
-    // অ্যাডমিন ফাংশনালিটি
-    function toggleAdmin() {
-        const panel = document.getElementById('admin-panel');
-        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+    function saveAdj() {
+        adjustment = parseInt(document.getElementById('adj').value);
+        localStorage.setItem('arAdj', adjustment);
+        render();
+        document.getElementById('admin-panel').style.display = 'none';
+        alert("আরবি তারিখ আপডেট হয়েছে!");
     }
 
-    function saveAdjustment() {
-        const val = document.getElementById('adj-value').value;
-        localStorage.setItem('hijriAdj', val);
-        adjustment = parseInt(val);
-        updateCalendar();
-        alert('আরবি তারিখ আপডেট করা হয়েছে!');
-        toggleAdmin();
-    }
-
-    updateCalendar();
+    render();
 </script>
 
 </body>
