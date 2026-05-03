@@ -3,77 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>স্মার্ট ক্যালেন্ডার ২০২৬</title>
+    <title>স্মার্ট ক্যালেন্ডার ও নোট</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #014732; font-family: 'Arial', sans-serif; padding: 5px; }
-        .calendar-card { max-width: 450px; margin: auto; background: white; border-radius: 15px; overflow: hidden; border: 3px solid #014732; }
-        .month-header { text-align: center; padding: 15px; color: #014732; font-size: 28px; font-weight: bold; border-bottom: 2px solid #014732; }
-        .info-bar-bng { background: #fff59d; color: #5d4037; text-align: center; font-weight: bold; padding: 5px; border-bottom: 2px solid #014732; }
-        .info-bar-arb { background: #80deea; color: #006064; text-align: center; font-weight: bold; padding: 5px; border-bottom: 2px solid #014732; }
-        .weekday-header { display: grid; grid-template-columns: repeat(7, 1fr); background: #014732; color: white; text-align: center; font-weight: bold; padding: 10px 0; }
-        .grid-container { display: grid; grid-template-columns: repeat(7, 1fr); background: #014732; gap: 2px; border: 1px solid #014732; }
-        .day-cell { background: white; min-height: 85px; display: flex; flex-direction: column; justify-content: space-between; padding: 2px; position: relative; border: 1px solid #ddd; }
-        .eng-num { font-size: 22px; font-weight: bold; text-align: center; color: #333; margin-top: 5px; }
-        .footer-dates { display: flex; justify-content: space-between; padding: 2px; }
-        .arb-box { background: #fff3e0; color: #e65100; font-size: 11px; font-weight: bold; padding: 0 4px; border-radius: 3px; border: 1px solid #ffccbc; }
-        .bng-box { background: #e1f5fe; color: #01579b; font-size: 11px; font-weight: bold; padding: 0 4px; border-radius: 3px; border: 1px solid #b3e5fc; }
-        .holiday { background: #ffcdd2; }
-        .today { background: #42a5f5 !important; color: white !important; }
-        .today .eng-num { color: white; }
-        .friday-col { color: #ff5252; }
+        body { font-family: 'Hind Siliguri', sans-serif; background-color: #f3f4f6; }
+        .header-bg { background-color: #22c55e; border-radius: 15px; }
+        .card { background: white; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .hijri-card { background-color: #1e293b; color: #fbbf24; border-radius: 15px; }
+        .eng-date { font-size: 1.25rem; font-weight: bold; color: #1e293b; }
+        .bng-date { font-size: 0.8rem; color: #059669; }
+        .arb-date { font-size: 0.7rem; color: #d97706; }
+        .today-highlight { border: 2px solid #3b82f6; background-color: #eff6ff; }
     </style>
 </head>
-<body>
+<body class="p-4">
 
-<div class="calendar-card shadow-2xl">
-    <div class="month-header">মে ২০২৬</div>
-    <div class="info-bar-bng">বৈশাখ -- জ্যৈষ্ঠ ১৪৩৩ বাংলা</div>
-    <div class="info-bar-arb">জিলকদ -- জিলহজ্জ ১৪৪৭ হিজরি</div>
+    <div class="max-w-md mx-auto space-y-4">
+        
+        <div class="header-bg p-6 text-white flex justify-between items-center shadow-lg">
+            <div>
+                <h1 class="text-2xl font-bold">স্মার্ট ক্যালেন্ডার ও নোট</h1>
+                <p class="text-sm">বাংলা, ইংরেজি ও হিজরি তারিখ</p>
+            </div>
+            <div class="bg-green-600/50 p-3 rounded-xl text-center">
+                <div id="clock" class="text-xl font-bold">০৬:৩৭:১৯</div>
+                <div class="text-xs">AM</div>
+            </div>
+        </div>
 
-    <div class="weekday-header">
-        <div>রবি</div><div>সোম</div><div>মঙ্গল</div><div>বুধ</div><div>বৃহঃ</div><div class="friday-col">শুক্র</div><div class="friday-col">শনি</div>
+        <div class="hijri-card p-5 shadow-md">
+            <h2 class="text-lg font-bold mb-3">হিজরি সমন্বয়</h2>
+            <div class="flex justify-between items-center bg-gray-800/50 p-2 rounded-full">
+                <button class="bg-red-500 text-white w-10 h-10 rounded-full font-bold">-১</button>
+                <span class="text-xl font-bold">০</span>
+                <button class="bg-green-500 text-white w-10 h-10 rounded-full font-bold">+১</button>
+            </div>
+        </div>
+
+        <div class="card p-5">
+            <div class="flex justify-between items-center mb-6">
+                <button class="text-gray-400 text-xl font-bold">❮</button>
+                <h2 class="text-xl font-bold text-gray-700">May 2026</h2>
+                <button class="text-gray-400 text-xl font-bold">❯</button>
+            </div>
+            
+            <div class="grid grid-cols-7 gap-1 text-center text-gray-400 font-bold mb-4 text-sm">
+                <div>শনি</div><div>রবি</div><div>সোম</div><div>মঙ্গল</div><div>বুধ</div><div>বৃহ</div><div>শুক্র</div>
+            </div>
+
+            <div id="calendarGrid" class="grid grid-cols-7 gap-2">
+                </div>
+        </div>
+
     </div>
 
-    <div id="calendarGrid" class="grid-container">
-        </div>
-</div>
+    <script>
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const daysInMonth = 31;
+            const startDay = 6; // শনিবার থেকে শুরু (আপনার ছবি অনুযায়ী)
 
-<script>
-    function renderCalendar() {
-        const grid = document.getElementById('calendarGrid');
-        const daysInMonth = 31;
-        const firstDay = 5; // ২০২৬ সালের মে মাস শুক্রবার থেকে শুরু
-        
-        grid.innerHTML = '';
+            grid.innerHTML = '';
 
-        // প্রথম মাসের শুরুর খালি ঘর
-        for (let i = 0; i < firstDay; i++) {
-            grid.innerHTML += '<div class="day-cell bg-gray-100"></div>';
-        }
+            for(let i=0; i<startDay; i++) grid.innerHTML += '<div></div>';
 
-        for (let d = 1; d <= daysInMonth; d++) {
-            const dayOfWeek = (d + firstDay - 1) % 7;
-            const isToday = (d === 3); // উদাহরণ হিসেবে ৩ তারিখকে নীল করা হয়েছে
-            const isHoliday = (dayOfWeek === 5 || dayOfWeek === 6 || d >= 26); // শুক্র, শনি ও শেষের দিনগুলো লালচে
-
-            // আরবি ও বাংলা তারিখের একটি সাধারণ হিসাব (আপনার ছবি অনুযায়ী)
-            let arbDate = (d + 16) % 30 || 30;
-            let bngDate = (d + 17) % 30 || 30;
-
-            grid.innerHTML += `
-                <div class="day-cell ${isHoliday ? 'holiday' : ''} ${isToday ? 'today' : ''}">
-                    <div class="eng-num">${d}</div>
-                    <div class="footer-dates">
-                        <span class="arb-box">${arbDate}</span>
-                        <span class="bng-box">${bngDate}</span>
+            for(let d=1; d<=daysInMonth; d++) {
+                const isToday = (d === 3); // আজ ৩ মে
+                grid.innerHTML += `
+                    <div class="text-center p-2 rounded-xl transition hover:bg-gray-50 ${isToday ? 'today-highlight' : ''}">
+                        <div class="eng-date">${d}</div>
+                        <div class="bng-date">বৈশাখ</div>
+                        <div class="arb-date">${d+16}</div>
                     </div>
-                </div>
-            `;
+                `;
+            }
         }
-    }
-    renderCalendar();
-</script>
+        renderCalendar();
+        
+        // ঘড়ি আপডেট
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('bn-BD', {hour12: false});
+        }, 1000);
+    </script>
 
 </body>
 </html>
