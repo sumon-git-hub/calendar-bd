@@ -13,39 +13,44 @@
         .main-card { max-width: 450px; margin: 0 auto; background: white; min-height: 100vh; display: flex; flex-direction: column; }
         .header { background: #059669; padding: 20px; text-align: center; color: white; border-radius: 0 0 20px 20px; }
         .grid-7 { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; padding: 10px; text-align: center; }
-        .day-box { height: 60px; display: flex; flex-direction: column; justify-content: center; background: #fff; border: 1px solid #eee; border-radius: 10px; }
-        .today { background: #2563eb !important; color: white !important; border: none; }
+        .day-box { height: 60px; display: flex; flex-direction: column; justify-content: center; background: #fff; border: 1px solid #eee; border-radius: 10px; transition: 0.2s; }
+        .today { background: #2563eb !important; color: white !important; border: none; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.4); }
     </style>
 </head>
 <body>
 
 <div class="main-card shadow-2xl">
     <div class="header">
-        <h1 class="text-xl font-bold">My Smart Calendar</h1>
-        <div id="liveClock" class="text-2xl font-bold mt-2 opacity-90">00:00:00 PM</div>
+        <h1 class="text-xl font-bold tracking-wide">My Smart Calendar</h1>
+        <div id="liveClock" class="text-2xl font-bold mt-2 opacity-90 tracking-widest">00:00:00 PM</div>
     </div>
 
-    <div class="p-6 text-center">
-        <h2 id="topDayName" class="text-2xl font-bold text-emerald-800">আজ লোড হচ্ছে...</h2>
-        <div id="topEng" class="text-lg text-gray-500 mt-1">সঠিক তারিখ লোড হচ্ছে...</div>
+    <div id="topDisplay" class="p-6 text-center border-b border-gray-50">
+        <h2 id="topDayName" class="text-2xl font-bold text-emerald-800">লোড হচ্ছে...</h2>
+        <div id="topEng" class="text-lg text-gray-500 mt-1 font-semibold">সঠিক তারিখ লোড হচ্ছে...</div>
         <div id="topHij" class="text-lg text-gray-500"></div>
         <div id="topBan" class="text-lg text-gray-500"></div>
     </div>
 
-    <div class="flex justify-between items-center px-10 py-2">
-        <button onclick="moveMonth(-1)" class="text-3xl font-bold p-2 text-gray-400">❮</button>
+    <div class="flex justify-between items-center px-8 py-3">
+        <button onclick="moveMonth(-1)" class="text-3xl font-bold p-2 text-gray-300 hover:text-emerald-600 transition-colors">❮</button>
         <div id="monthLabel" class="text-xl font-bold text-gray-800">May 2026</div>
-        <button onclick="moveMonth(1)" class="text-3xl font-bold p-2 text-gray-400">❯</button>
+        <button onclick="moveMonth(1)" class="text-3xl font-bold p-2 text-gray-300 hover:text-emerald-600 transition-colors">❯</button>
     </div>
 
-    <div class="grid-7 text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-2">
+    <div class="grid-7 text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">
         <div>Sat</div><div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div class="text-red-500">Fri</div>
     </div>
+
     <div id="calGrid" class="grid-7"></div>
+    
+    <div class="mt-auto p-4 text-center text-[10px] text-red-400 font-semibold italic">
+        * আরবি তারিখ চাঁদ দেখার উপর নির্ভরশীল
+    </div>
 </div>
 
 <script>
-    // Firebase Setup
+    // Firebase Configuration
     const firebaseConfig = { databaseURL: "https://YOUR_DATABASE_URL.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
@@ -57,6 +62,7 @@
     const engMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const bnDays = ["রবিবার", "সোমবার", "মঙ্গলবার", "বুধবার", "বৃহস্পতিবার", "শুক্রবার", "শনিবার"];
 
+    // Listen for Hijri Adjustment from Firebase
     db.ref('hijriAdj').on('value', (snap) => {
         adjH = snap.val() || 0;
         updateUI();
@@ -64,6 +70,7 @@
 
     function updateUI() {
         const grid = document.getElementById('calGrid');
+        if(!grid) return;
         grid.innerHTML = '';
         document.getElementById('monthLabel').innerText = `${engMonths[viewM]} ${viewY}`;
 
@@ -71,44 +78,66 @@
         const offset = (first + 1) % 7;
         const totalDays = new Date(viewY, viewM + 1, 0).getDate();
 
+        // Empty cells for alignment
         for (let i = 0; i < offset; i++) grid.innerHTML += '<div></div>';
 
-        const base = new Date(2026, 4, 3); // বেস ৩ মে ২০২৬ (১৪ যিলক্বদ)
+        const baseDate = new Date(2026, 4, 3); // Base Date: 3 May 2026 (14 Hijri)
 
         for (let d = 1; d <= totalDays; d++) {
             const date = new Date(viewY, viewM, d);
-            const diff = Math.round((date - base) / 86400000);
+            const diff = Math.round((date - baseDate) / 86400000);
             
-            // হিজরি ২৯ দিনের চক্র
+            // Hijri 29-day constant cycle
             let hD = ((diff + 14) % 29 + 29) % 29;
             if(hD === 0) hD = 29;
             let hMIdx = (Math.floor((diff + 14) / 29) % 12 + 12) % 12;
 
-            // আপনার চাহিদা: ১ তারিখকে ৩০ দেখানো
-            if (adjH > 0 && hD === 1) { hD = 30; hMIdx = (hMIdx - 1 + 12) % 12; }
+            // Logic: If adjustment is +1, show 30 instead of 1
+            if (adjH > 0 && hD === 1) { 
+                hD = 30; 
+                hMIdx = (hMIdx - 1 + 12) % 12; 
+            }
 
-            // বাংলা
-            let bD = Math.round((date - new Date(2026, 3, 14)) / 86400000) + 1;
+            // Bangla Logic
+            let bDTotal = Math.round((date - new Date(2026, 3, 14)) / 86400000) + 1;
             let bMIdx = 0, bLens = [31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30, 30];
-            for(let j=0; j<12; j++){ if(bD <= bLens[j]){ bMIdx = j; break; } bD -= bLens[j]; }
+            for(let j=0; j<12; j++){ 
+                if(bDTotal <= bLens[j]){ bMIdx = j; break; } 
+                bDTotal -= bLens[j]; 
+            }
 
-            const isT = (date.toDateString() === new Date().toDateString());
-            grid.innerHTML += `<div class="day-box ${isT?'today':''}">
-                <div class="font-bold text-lg leading-tight">${d}</div>
-                <div class="text-[9px] opacity-70">${hD}/${bD}</div>
-            </div>`;
+            const isToday = (date.toDateString() === new Date().toDateString());
+            
+            grid.innerHTML += `
+                <div class="day-box ${isToday ? 'today' : ''}">
+                    <div class="font-bold text-lg leading-tight">${d}</div>
+                    <div class="text-[9px] font-semibold opacity-70">${hD}/${bDTotal}</div>
+                </div>`;
 
-            if(isT) {
+            if(isToday) {
                 document.getElementById('topDayName').innerText = `আজ ${bnDays[date.getDay()]}`;
                 document.getElementById('topEng').innerText = `${d} ${engMonths[viewM]} ${viewY} AD`;
                 document.getElementById('topHij').innerText = `${hD} ${hijMonths[hMIdx]} 1447 হিজরি`;
-                document.getElementById('topBan').innerText = `${bD} ${banMonths[bMIdx]} 1433 বঙ্গাব্দ`;
+                document.getElementById('topBan').innerText = `${bDTotal} ${banMonths[bMIdx]} 1433 বঙ্গাব্দ`;
             }
         }
     }
 
-    function moveMonth(v) { viewM += v; if(viewM>11){viewM=0;viewY++;} else if(viewM<0){viewM=11;viewY--;} updateUI(); }
-    setInterval(() => { document.getElementById('liveClock').innerText = new Date().toLocaleTimeString('en-US'); }, 1000);
+    function moveMonth(val) { 
+        viewM += val; 
+        if(viewM > 11) { viewM = 0; viewY++; } 
+        else if(viewM < 0) { viewM = 11; viewY--; } 
+        updateUI(); 
+    }
+
+    // Live Clock Function
+    setInterval(() => { 
+        const now = new Date();
+        document.getElementById('liveClock').innerText = now.toLocaleTimeString('en-US', { hour12: true }); 
+    }, 1000);
+
+    // Initial Load
+    updateUI();
 </script>
 
 </body>
