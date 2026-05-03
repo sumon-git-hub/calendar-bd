@@ -3,43 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>স্মার্ট মাল্টি-ক্যালেন্ডার</title>
+    <title>স্মার্ট ক্যালেন্ডার ২০২৬</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Hind Siliguri', sans-serif; background-color: #064e3b; padding: 10px; }
-        .calendar-container { max-width: 450px; margin: auto; border: 4px solid #065f46; border-radius: 15px; overflow: hidden; background: #fff; }
-        .header-box { background: #fff; border-bottom: 3px solid #065f46; text-align: center; padding: 10px; }
-        .month-name { color: #065f46; font-size: 2rem; font-weight: bold; }
-        .info-bar { display: flex; flex-direction: column; gap: 2px; }
-        .bng-bar { background: #fef08a; color: #854d0e; font-weight: bold; padding: 4px; border-top: 2px solid #065f46; }
-        .arb-bar { background: #67e8f9; color: #164e63; font-weight: bold; padding: 4px; border-top: 2px solid #065f46; border-bottom: 2px solid #065f46; }
-        .day-header { background: #064e3b; color: white; display: grid; grid-cols: 7; text-align: center; font-weight: bold; padding: 10px 0; }
-        .grid-container { display: grid; grid-template-columns: repeat(7, 1fr); background: #065f46; gap: 1px; }
-        .day-cell { background: white; height: 85px; display: flex; flex-direction: column; justify-content: space-between; padding: 4px; position: relative; }
-        .eng-num { font-size: 1.6rem; font-weight: bold; align-self: center; margin-top: 5px; color: #1f2937; }
-        .bottom-dates { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: bold; }
-        .arb-num { color: #b45309; background: #ffedd5; padding: 0 4px; border-radius: 3px; }
-        .bng-num { color: #0369a1; background: #e0f2fe; padding: 0 4px; border-radius: 3px; }
-        .holiday { background: #fca5a5 !important; }
-        .today { background: #3b82f6 !important; color: white !important; }
+        body { background-color: #014732; font-family: 'Arial', sans-serif; padding: 5px; }
+        .calendar-card { max-width: 450px; margin: auto; background: white; border-radius: 15px; overflow: hidden; border: 3px solid #014732; }
+        .month-header { text-align: center; padding: 15px; color: #014732; font-size: 28px; font-weight: bold; border-bottom: 2px solid #014732; }
+        .info-bar-bng { background: #fff59d; color: #5d4037; text-align: center; font-weight: bold; padding: 5px; border-bottom: 2px solid #014732; }
+        .info-bar-arb { background: #80deea; color: #006064; text-align: center; font-weight: bold; padding: 5px; border-bottom: 2px solid #014732; }
+        .weekday-header { display: grid; grid-template-columns: repeat(7, 1fr); background: #014732; color: white; text-align: center; font-weight: bold; padding: 10px 0; }
+        .grid-container { display: grid; grid-template-columns: repeat(7, 1fr); background: #014732; gap: 2px; border: 1px solid #014732; }
+        .day-cell { background: white; min-height: 85px; display: flex; flex-direction: column; justify-content: space-between; padding: 2px; position: relative; border: 1px solid #ddd; }
+        .eng-num { font-size: 22px; font-weight: bold; text-align: center; color: #333; margin-top: 5px; }
+        .footer-dates { display: flex; justify-content: space-between; padding: 2px; }
+        .arb-box { background: #fff3e0; color: #e65100; font-size: 11px; font-weight: bold; padding: 0 4px; border-radius: 3px; border: 1px solid #ffccbc; }
+        .bng-box { background: #e1f5fe; color: #01579b; font-size: 11px; font-weight: bold; padding: 0 4px; border-radius: 3px; border: 1px solid #b3e5fc; }
+        .holiday { background: #ffcdd2; }
+        .today { background: #42a5f5 !important; color: white !important; }
         .today .eng-num { color: white; }
+        .friday-col { color: #ff5252; }
     </style>
 </head>
 <body>
 
-<div class="calendar-container shadow-2xl">
-    <div class="header-box">
-        <div class="month-name" id="monthYear">মে ২০২৬</div>
-    </div>
-    
-    <div class="info-bar text-center">
-        <div class="bng-bar">বৈশাখ -- জ্যৈষ্ঠ ১৪৩৩ বাংলা</div>
-        <div class="arb-bar">জিলকদ -- জিলহজ্জ ১৪৪৭ হিজরি</div>
-    </div>
+<div class="calendar-card shadow-2xl">
+    <div class="month-header">মে ২০২৬</div>
+    <div class="info-bar-bng">বৈশাখ -- জ্যৈষ্ঠ ১৪৩৩ বাংলা</div>
+    <div class="info-bar-arb">জিলকদ -- জিলহজ্জ ১৪৪৭ হিজরি</div>
 
-    <div class="grid grid-cols-7 bg-[#064e3b] text-white text-center py-2 font-bold text-lg">
-        <div>রবি</div><div>সোম</div><div>মঙ্গল</div><div>বুধ</div><div>বৃহঃ</div><div class="text-red-300">শুক্র</div><div class="text-red-300">শনি</div>
+    <div class="weekday-header">
+        <div>রবি</div><div>সোম</div><div>মঙ্গল</div><div>বুধ</div><div>বৃহঃ</div><div class="friday-col">শুক্র</div><div class="friday-col">শনি</div>
     </div>
 
     <div id="calendarGrid" class="grid-container">
@@ -47,57 +40,39 @@
 </div>
 
 <script>
-    const bMonths = ["পৌষ", "মাঘ", "ফাল্গুন", "চৈত্র", "বৈশাখ", "জ্যৈষ্ঠ", "আষাঢ়", "শ্রাবণ", "ভাদ্র", "আশ্বিন", "কার্তিক", "অগ্রহায়ণ"];
-    
-    function getBengaliDate(d, m) {
-        // সহজ লজিক: মে মাস হলে বৈশাখ-জ্যৈষ্ঠ
-        let bDay = (d + 16) % 30 || 30;
-        return bDay;
-    }
-
-    function getArabicDate(date) {
-        const format = new Intl.DateTimeFormat('bn-BD-u-ca-islamic-uma', {day:'numeric'}).format(date);
-        return format;
-    }
-
-    function render() {
+    function renderCalendar() {
         const grid = document.getElementById('calendarGrid');
-        const now = new Date();
-        const curM = 4; // মে মাস (Index 4)
-        const curY = 2026;
+        const daysInMonth = 31;
+        const firstDay = 5; // ২০২৬ সালের মে মাস শুক্রবার থেকে শুরু
         
-        const firstDay = new Date(curY, curM, 1).getDay(); // ০=রবি
-        const daysInMonth = new Date(curY, curM + 1, 0).getDate();
-
         grid.innerHTML = '';
 
-        // Empty cells for padding
-        for(let i=0; i<firstDay; i++) {
+        // প্রথম মাসের শুরুর খালি ঘর
+        for (let i = 0; i < firstDay; i++) {
             grid.innerHTML += '<div class="day-cell bg-gray-100"></div>';
         }
 
-        for(let d=1; d<=daysInMonth; d++) {
-            const dateObj = new Date(curY, curM, d);
-            const dayOfWeek = dateObj.getDay();
-            const isToday = d === 3; // আপনার স্ক্রিনশট অনুযায়ী ৩ তারিখ নীল
-            const isHoliday = (dayOfWeek === 5 || dayOfWeek === 6) || (d >= 26 && d <= 30) || d === 31;
+        for (let d = 1; d <= daysInMonth; d++) {
+            const dayOfWeek = (d + firstDay - 1) % 7;
+            const isToday = (d === 3); // উদাহরণ হিসেবে ৩ তারিখকে নীল করা হয়েছে
+            const isHoliday = (dayOfWeek === 5 || dayOfWeek === 6 || d >= 26); // শুক্র, শনি ও শেষের দিনগুলো লালচে
 
-            const arb = getArabicDate(dateObj);
-            const bng = getBengaliDate(d, curM);
+            // আরবি ও বাংলা তারিখের একটি সাধারণ হিসাব (আপনার ছবি অনুযায়ী)
+            let arbDate = (d + 16) % 30 || 30;
+            let bngDate = (d + 17) % 30 || 30;
 
             grid.innerHTML += `
                 <div class="day-cell ${isHoliday ? 'holiday' : ''} ${isToday ? 'today' : ''}">
                     <div class="eng-num">${d}</div>
-                    <div class="bottom-dates">
-                        <span class="arb-num">${arb}</span>
-                        <span class="bng-num">${bng}</span>
+                    <div class="footer-dates">
+                        <span class="arb-box">${arbDate}</span>
+                        <span class="bng-box">${bngDate}</span>
                     </div>
                 </div>
             `;
         }
     }
-
-    render();
+    renderCalendar();
 </script>
 
 </body>
