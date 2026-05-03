@@ -10,68 +10,48 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Hind Siliguri', sans-serif; background-color: #f1f5f9; }
-        .main-card { max-width: 450px; margin: 0 auto; background: white; min-height: 100vh; position: relative; overflow: hidden; }
-        .header-section { background-color: #059669; padding: 25px; text-align: center; color: white; border-radius: 0 0 25px 25px; position: relative; }
-        .title-text { font-family: 'Poppins', sans-serif; font-size: 24px; font-weight: 700; }
-        .clock-pill { background: rgba(255,255,255,0.15); display: inline-block; padding: 8px 30px; border-radius: 50px; font-size: 22px; margin-top: 15px; font-family: 'Poppins', sans-serif; font-weight: 600; }
-        .menu-btn { position: absolute; top: 25px; right: 20px; cursor: pointer; font-size: 24px; color: white; }
-        .admin-dropdown { display: none; position: absolute; top: 60px; right: 20px; background: #1e293b; color: white; padding: 15px; border-radius: 12px; z-index: 50; width: 160px; box-shadow: 0 10px 15px rgba(0,0,0,0.2); }
+        .main-card { max-width: 450px; margin: 0 auto; background: white; min-height: 100vh; position: relative; }
+        .header-section { background-color: #059669; padding: 25px; text-align: center; color: white; border-radius: 0 0 25px 25px; }
+        .clock-pill { background: rgba(255,255,255,0.15); display: inline-block; padding: 8px 30px; border-radius: 50px; font-size: 22px; margin-top: 15px; font-family: 'Poppins', sans-serif; }
         .date-display { padding: 30px 20px; text-align: center; border-bottom: 1px solid #f1f5f9; min-height: 200px; }
-        .date-row { font-size: 20px; font-weight: 600; color: #334155; margin: 10px 0; }
-        .eng-num { font-family: 'Poppins', sans-serif; }
-        .calendar-nav { display: flex; justify-content: space-between; align-items: center; padding: 20px; }
-        .month-label { font-size: 26px; font-weight: 700; color: #1e293b; font-family: 'Poppins', sans-serif; min-width: 180px; text-align: center; }
-        .nav-btn { background: #f8fafc; border: 1px solid #e2e8f0; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 20px; }
         .grid-7 { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; padding: 0 15px; }
-        .weekday { text-align: center; font-weight: bold; font-size: 14px; color: #94a3b8; padding-bottom: 15px; font-family: 'Poppins', sans-serif; }
         .day-cell { height: 65px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9; }
-        .num-main { font-size: 19px; font-weight: 700; color: #1e293b; font-family: 'Poppins', sans-serif; }
-        .num-sub { font-size: 10px; color: #64748b; margin-top: 2px; font-family: 'Poppins', sans-serif; }
-        .today-mark { background: #2563eb !important; border: none; }
+        .today-mark { background: #2563eb !important; color: white !important; }
         .today-mark * { color: white !important; }
-        .friday-text { color: #ef4444 !important; }
-        .footer-note { text-align: center; color: #ef4444; font-weight: 600; font-size: 14px; padding: 20px 10px; }
     </style>
 </head>
 <body>
 
     <div class="main-card shadow-lg">
         <div class="header-section">
-            <div class="menu-btn" onclick="checkAdmin()">⋮</div>
-            <div id="adminPanel" class="admin-dropdown">
-                <h3 class="text-xs font-bold mb-2 text-yellow-400">অ্যাডমিন কন্ট্রোল</h3>
-                <div class="flex items-center justify-between gap-2">
-                    <button onclick="adjustHijri(-1, event)" class="bg-red-500 w-8 h-8 rounded">-</button>
-                    <span id="adjVal" class="font-bold eng-num">0</span>
-                    <button onclick="adjustHijri(1, event)" class="bg-emerald-500 w-8 h-8 rounded">+</button>
-                </div>
-                <button onclick="logoutAdmin()" class="mt-3 text-[10px] text-gray-400 underline">লগ আউট</button>
-            </div>
-            <h1 class="title-text">My Smart Calendar</h1>
+            <h1 class="text-2xl font-bold">My Smart Calendar</h1>
             <div id="liveTime" class="clock-pill">00:00:00 AM</div>
         </div>
 
         <div class="date-display">
             <h2 id="topDayName" class="text-2xl font-bold text-emerald-800 mb-4">লোড হচ্ছে...</h2>
-            <div id="topEng" class="date-row eng-num"></div>
-            <div id="topHijri" class="date-row"></div>
-            <div id="topBangla" class="date-row"></div>
+            <div id="topEng" class="text-xl font-semibold mb-2"></div>
+            <div id="topHijri" class="text-xl font-semibold mb-2"></div>
+            <div id="topBangla" class="text-xl font-semibold"></div>
         </div>
 
-        <div class="calendar-nav">
-            <button class="nav-btn" onclick="changeMonth(-1)">❮</button>
-            <div id="monthDisplay" class="month-label"></div>
-            <button class="nav-btn" onclick="changeMonth(1)">❯</button>
+        <div class="flex justify-between items-center p-5">
+            <button class="text-2xl" onclick="changeMonth(-1)">❮</button>
+            <div id="monthDisplay" class="text-2xl font-bold"></div>
+            <button class="text-2xl" onclick="changeMonth(1)">❯</button>
         </div>
 
-        <div class="grid-7">
-            <div class="weekday">Sat</div><div class="weekday">Sun</div><div class="weekday">Mon</div>
-            <div class="weekday">Tue</div><div class="weekday">Wed</div><div class="weekday">Thu</div>
-            <div class="weekday friday-text">Fri</div>
+        <div class="grid-7 mb-4">
+            <div class="text-center font-bold text-gray-400">Sat</div>
+            <div class="text-center font-bold text-gray-400">Sun</div>
+            <div class="text-center font-bold text-gray-400">Mon</div>
+            <div class="text-center font-bold text-gray-400">Tue</div>
+            <div class="text-center font-bold text-gray-400">Wed</div>
+            <div class="text-center font-bold text-gray-400">Thu</div>
+            <div class="text-center font-bold text-red-500">Fri</div>
         </div>
 
         <div id="calendarGrid" class="grid-7"></div>
-        <div class="footer-note">* আরবি তারিখ চাঁদ দেখার উপর নির্ভরশীল</div>
     </div>
 
     <script>
@@ -80,9 +60,8 @@
         const db = firebase.database();
 
         let currentYear = 2026;
-        let currentMonth = 4; // May
+        let currentMonth = 4; 
         let hijriAdjustment = 0;
-        let isAdmin = false;
 
         const hijriMonths = ["যিলক্বদ", "যিলহজ্ব", "মুহাররম", "সফর", "রবিউল আউয়াল", "রবিউস সানি", "জমাদিউল আউয়াল", "জমাদিউস সানি", "রজব", "শাবান", "রমজান", "শাওয়াল"];
         const banglaMonths = ["বৈশাখ", "জ্যৈষ্ঠ", "আষাঢ়", "শ্রাবণ", "ভাদ্র", "আশ্বিন", "কার্তিক", "অগ্রহায়ণ", "পৌষ", "মাঘ", "ফাল্গুন", "চৈত্র"];
@@ -94,79 +73,60 @@
             renderCalendar(currentYear, currentMonth);
         });
 
-        function checkAdmin() {
-            if(isAdmin) togglePanel();
-            else {
-                let pass = prompt("অ্যাডমিন পাসওয়ার্ড দিন:");
-                if(pass === "AmiSumon1") { isAdmin = true; togglePanel(); }
-                else alert("ভুল পাসওয়ার্ড!");
-            }
-        }
-
-        function togglePanel() {
-            const panel = document.getElementById('adminPanel');
-            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-        }
-
-        function logoutAdmin() { isAdmin = false; document.getElementById('adminPanel').style.display = 'none'; }
-        function adjustHijri(val, e) { e.stopPropagation(); hijriAdjustment += val; db.ref('hijriAdj').set(hijriAdjustment); }
-
         function renderCalendar(year, month) {
             const grid = document.getElementById('calendarGrid');
-            if(!grid) return;
             grid.innerHTML = '';
             document.getElementById('monthDisplay').innerText = `${engMonths[month]} ${year}`;
-            document.getElementById('adjVal').innerText = hijriAdjustment;
 
             const firstDay = new Date(year, month, 1).getDay();
-            const startPos = (firstDay + 1) % 7; 
+            const startPos = (firstDay + 1) % 7;
             const daysInMonth = new Date(year, month + 1, 0).getDate();
 
             for (let i = 0; i < startPos; i++) grid.innerHTML += '<div></div>';
 
-            const baseDate = new Date(2026, 4, 3); // বেস তারিখ
-            
+            const baseDate = new Date(2026, 4, 3); // ৩ মে ২০২৬ বেস
+
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateObj = new Date(year, month, day);
                 const diffDays = Math.floor((dateObj - baseDate) / (1000*60*60*24));
                 
-                // স্বাভাবিক আরবি গণনা (২৯ দিন হিসেবে)
-                let hTotal = (diffDays + 14) % 29;
-                if(hTotal <= 0) hTotal += 29;
+                // হিজরি লজিক: ১ থেকে ২৯ এর সাইকেল
+                let hDayRaw = (diffDays + 14) % 29;
+                if(hDayRaw <= 0) hDayRaw += 29;
 
                 let hMonthOffset = Math.floor((diffDays + 14) / 29);
                 let hMonthIdx = (hMonthOffset % 12 + 12) % 12;
 
-                // সুমন ভাইয়ের বিশেষ কন্ডিশন: ১ তারিখকে ৩০ বানানো
-                let displayHDate = hTotal;
-                let displayHMonthIdx = hMonthIdx;
+                let finalHDate = hDayRaw;
+                let finalHMonthIdx = hMonthIdx;
 
-                if (hijriAdjustment > 0 && hTotal === 1) {
-                    displayHDate = 30;
-                    displayHMonthIdx = (hMonthIdx - 1 + 12) % 12;
+                // সুমন ভাইয়ের শর্ত: +১ থাকলে ১ তারিখ হবে ৩০
+                if (hijriAdjustment > 0 && hDayRaw === 1) {
+                    finalHDate = 30;
+                    finalHMonthIdx = (hMonthIdx - 1 + 12) % 12;
                 }
 
-                // বাংলা গণনা
+                // বাংলা লজিক
                 let bTotalDays = Math.floor((dateObj - new Date(2026, 3, 14)) / (1000*60*60*24)) + 1;
                 let bMonthIdx = 0;
                 let bDate = bTotalDays;
-                const bDaysInMonth = [31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30, 30]; 
+                const bDaysInMonth = [31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30, 30];
                 while(bDate > bDaysInMonth[bMonthIdx]) { bDate -= bDaysInMonth[bMonthIdx]; bMonthIdx = (bMonthIdx + 1) % 12; }
 
                 const isToday = (dateObj.toDateString() === new Date().toDateString());
 
                 grid.innerHTML += `
                     <div class="day-cell ${isToday ? 'today-mark' : ''}">
-                        <div class="num-main ${dateObj.getDay() === 5 && !isToday ? 'friday-text' : ''}">${day}</div>
-                        <div class="num-sub">${displayHDate}/${bDate}</div>
+                        <div class="text-lg font-bold">${day}</div>
+                        <div class="text-[10px] opacity-80">${finalHDate}/${bDate}</div>
                     </div>
                 `;
 
                 if(isToday) {
                     document.getElementById('topDayName').innerText = `আজ ${dayNamesBn[dateObj.getDay()]}`;
                     document.getElementById('topEng').innerText = `${day} ${engMonths[month]} ${year} AD`;
-                    document.getElementById('topHijri').innerHTML = `${displayHDate} ${hijriMonths[displayHMonthIdx]} <span class="eng-num">1447</span> হিজরি`;
-                    document.getElementById('topBangla').innerHTML = `${bDate} ${banglaMonths[bMonthIdx]} <span class="eng-num">1433</span> বঙ্গাব্দ`;
+                    document.getElementById('topHijri').innerText = `${finalHDate} ${hijriMonths[finalHMonthIdx]} 1447 হিজরি`;
+                    document.getElementById('topBangla').innerText = `${bDate} ${banglaMonths[bMonthIdx]} 1433 বঙ্গাব্দ`;
                 }
             }
         }
@@ -177,12 +137,10 @@
             else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
             renderCalendar(currentYear, currentMonth);
         }
-        function updateClock() { 
-            const el = document.getElementById('liveTime');
-            if(el) el.innerText = new Date().toLocaleTimeString('en-US', { hour12: true }); 
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
+
+        setInterval(() => {
+            document.getElementById('liveTime').innerText = new Date().toLocaleTimeString('en-US', { hour12: true });
+        }, 1000);
     </script>
 </body>
 </html>
