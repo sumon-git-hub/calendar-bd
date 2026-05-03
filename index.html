@@ -3,35 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>স্মার্ট ক্যালেন্ডার - বাংলা ও আরবি</title>
+    <title>স্মার্ট ক্যালেন্ডার - ইংরেজি ও আরবি</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Hind Siliguri', sans-serif; }
-        .date-card:hover { transform: scale(1.02); transition: 0.3s; }
-        .eng-date { font-size: 1.1rem; font-weight: bold; color: #1e293b; }
-        .bng-date { font-size: 0.7rem; color: #059669; }
-        .arb-date { font-size: 0.7rem; color: #d97706; }
+        .eng-date { font-size: 1.2rem; font-weight: bold; color: #1e293b; }
+        .arb-date { font-size: 0.75rem; color: #d97706; font-weight: 500; }
     </style>
 </head>
-<body class="bg-gray-50 p-2 md:p-6">
+<body class="bg-gray-50 p-2">
 
-    <div class="max-w-4xl mx-auto space-y-6">
-        
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center">
-            <h1 class="text-2xl font-bold text-blue-600 mb-2">আজকের তারিখ</h1>
-            <div id="todayDisplay" class="space-y-1">
-                </div>
+    <div class="max-w-md mx-auto space-y-4">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 text-center">
+            <h1 class="text-xl font-bold text-blue-600 mb-1">আজকের তারিখ</h1>
+            <div id="todayDisplay" class="text-gray-700"></div>
         </div>
 
-        <div class="bg-white p-5 rounded-2xl shadow-md border border-gray-100">
-            <div class="flex justify-between items-center mb-6">
-                <button onclick="changeMonth(-1)" class="p-2 hover:bg-gray-100 rounded-full text-xl">❮</button>
-                <h2 id="mLabel" class="font-bold text-xl text-gray-800"></h2>
-                <button onclick="changeMonth(1)" class="p-2 hover:bg-gray-100 rounded-full text-xl">❯</button>
+        <div class="bg-white p-4 rounded-2xl shadow-md border border-gray-100">
+            <div class="flex justify-between items-center mb-4">
+                <button onclick="changeMonth(-1)" class="p-2 hover:bg-gray-100 rounded-full">❮</button>
+                <h2 id="mLabel" class="font-bold text-lg"></h2>
+                <button onclick="changeMonth(1)" class="p-2 hover:bg-gray-100 rounded-full">❯</button>
             </div>
             
-            <div class="grid grid-cols-7 gap-1 text-center font-bold text-gray-500 mb-2">
+            <div class="grid grid-cols-7 gap-1 text-center font-bold text-gray-400 text-sm mb-2">
                 <div>শনি</div><div>রবি</div><div>সোম</div><div>মঙ্গল</div><div>বুধ</div><div>বৃহ</div><div>শুক্র</div>
             </div>
             <div id="calGrid" class="grid grid-cols-7 gap-2"></div>
@@ -41,67 +37,38 @@
     <script>
         let curM = new Date().getMonth(), curY = new Date().getFullYear();
 
-        // তারিখ কনভার্টার লজিক
-        function getExtraDates(d, m, y) {
-            const date = new Date(y, m, d);
-            
-            // আরবি (Hijri) তারিখ - Intl API ব্যবহার করে
-            const hijri = new Intl.DateTimeFormat('bn-BD-u-ca-islamic-uma', {day:'numeric', month:'long'}).format(date);
-            
-            // বাংলা তারিখ (সহজ লজিক)
-            let bDay = d, bMonth = "";
-            const bMonths = ["পৌষ", "মাঘ", "ফাল্গুন", "চৈত্র", "বৈশাখ", "জ্যৈষ্ঠ", "আষাঢ়", "শ্রাবণ", "ভাদ্র", "আশ্বিন", "কার্তিক", "অগ্রহায়ণ"];
-            
-            // বাংলা মাসের মোটামুটি হিসাব (বাংলাদেশি স্ট্যান্ডার্ড)
-            if (m === 0) bMonth = d <= 13 ? bMonths[0] : bMonths[1]; // Jan
-            else if (m === 1) bMonth = d <= 12 ? bMonths[1] : bMonths[2]; // Feb
-            else if (m === 2) bMonth = d <= 13 ? bMonths[2] : bMonths[3]; // Mar
-            else if (m === 3) bMonth = d <= 13 ? bMonths[3] : bMonths[4]; // Apr
-            else if (m === 4) bMonth = d <= 14 ? bMonths[4] : bMonths[5]; // May
-            else if (m === 5) bMonth = d <= 15 ? bMonths[5] : bMonths[6]; // Jun
-            else if (m === 6) bMonth = d <= 15 ? bMonths[6] : bMonths[7]; // Jul
-            else if (m === 7) bMonth = d <= 15 ? bMonths[7] : bMonths[8]; // Aug
-            else if (m === 8) bMonth = d <= 15 ? bMonths[8] : bMonths[9]; // Sep
-            else if (m === 9) bMonth = d <= 15 ? bMonths[9] : bMonths[10]; // Oct
-            else if (m === 10) bMonth = d <= 14 ? bMonths[10] : bMonths[11]; // Nov
-            else if (m === 11) bMonth = d <= 14 ? bMonths[11] : bMonths[0]; // Dec
-
-            return { hijri, bMonth };
+        function getArabicDate(date) {
+            // আরবি মাসের নামসহ তারিখ বের করার জন্য Intl API
+            return new Intl.DateTimeFormat('bn-BD-u-ca-islamic-uma', {day:'numeric', month:'long'}).format(date);
         }
 
         function render() {
             const grid = document.getElementById('calGrid');
             grid.innerHTML = '';
-            
             const daysInMonth = new Date(curY, curM + 1, 0).getDate();
-            const firstDay = new Date(curY, curM, 1).getDay(); // ০=রবি, ১=সোম... ৬=শনি
-            
-            // বাংলাদেশের শনি-শুক্র ফরম্যাট অনুযায়ী অ্যাডজাস্টমেন্ট
+            const firstDay = new Date(curY, curM, 1).getDay();
             const startPadding = (firstDay + 1) % 7; 
 
             document.getElementById('mLabel').innerText = new Intl.DateTimeFormat('bn-BD', {month:'long', year:'numeric'}).format(new Date(curY, curM));
 
-            // পিলারের জন্য খালি জায়গা
             for(let i=0; i<startPadding; i++) grid.innerHTML += '<div></div>';
 
-            // প্রতিটি দিনের ঘর তৈরি
             for(let d=1; d<=daysInMonth; d++) {
-                const extras = getExtraDates(d, curM, curY);
+                const dateObj = new Date(curY, curM, d);
+                const arabicFull = getArabicDate(dateObj);
                 const isToday = d === new Date().getDate() && curM === new Date().getMonth() && curY === new Date().getFullYear();
                 
                 grid.innerHTML += `
-                    <div class="date-card border border-gray-100 p-1 md:p-2 rounded-lg bg-white shadow-sm ${isToday ? 'ring-2 ring-blue-500 bg-blue-50' : ''}">
+                    <div class="p-2 rounded-xl border border-gray-50 text-center ${isToday ? 'bg-blue-50 ring-2 ring-blue-400' : 'bg-white shadow-sm'}">
                         <div class="eng-date">${d}</div>
-                        <div class="bng-date">${extras.bMonth}</div>
-                        <div class="arb-date">${extras.hijri.split(' ')[0]}</div>
+                        <div class="arb-date">${arabicFull}</div>
                     </div>
                 `;
 
                 if(isToday) {
                     document.getElementById('todayDisplay').innerHTML = `
-                        <p class="text-lg font-semibold">${new Intl.DateTimeFormat('bn-BD', {weekday:'long', day:'numeric', month:'long', year:'numeric'}).format(new Date())}</p>
-                        <p class="text-emerald-600">বাংলা: ${extras.bMonth}</p>
-                        <p class="text-amber-600">আরবি: ${extras.hijri}</p>
+                        <p class="font-semibold text-lg">${new Intl.DateTimeFormat('bn-BD', {weekday:'long', day:'numeric', month:'long', year:'numeric'}).format(dateObj)}</p>
+                        <p class="text-amber-600 font-medium">আরবি: ${arabicFull}</p>
                     `;
                 }
             }
@@ -113,7 +80,6 @@
             if(curM < 0) { curM = 11; curY--; }
             render();
         }
-
         render();
     </script>
 </body>
