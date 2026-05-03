@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>বিডি ক্যালেন্ডার ও বয়স ক্যালকুলেটর</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Hind Siliguri', sans-serif; background-color: #f3f4f6; }
+    </style>
+</head>
+<body class="p-4">
+
+    <div class="max-w-4xl mx-auto space-y-6">
+        
+        <header class="text-center py-6 bg-green-600 text-white rounded-xl shadow-lg">
+            <h1 class="text-3xl font-bold">বাংলাদেশি মাল্টি-ক্যালেন্ডার</h1>
+            <p class="text-sm mt-1">ইংরেজি, বাংলা ও আরবি তারিখ (অ্যাডমিন কন্ট্রোলসহ)</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <div class="space-y-6">
+                <div class="bg-white p-5 rounded-xl shadow-md border-t-4 border-blue-500">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-700">বয়স ক্যালকুলেটর</h2>
+                    <label class="block text-sm mb-1">জন্ম তারিখ নির্বাচন করুন:</label>
+                    <input type="date" id="dob" class="w-full border p-2 rounded mb-3 focus:ring-2 focus:ring-blue-400 outline-none">
+                    <button onclick="calculateAge()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">হিসাব করুন</button>
+                    <div id="ageResult" class="mt-4 text-sm text-gray-600 font-medium"></div>
+                </div>
+
+                <div class="bg-gray-800 p-5 rounded-xl shadow-md text-white">
+                    <h2 class="text-lg font-semibold mb-3 text-yellow-400 underline">অ্যাডমিন প্যানেল</h2>
+                    <p class="text-xs mb-3 text-gray-300">আরবি তারিখ চাঁদ অনুযায়ী সমন্বয় করুন:</p>
+                    <div class="flex items-center justify-between bg-gray-700 p-2 rounded">
+                        <button onclick="adjustHijri(-1)" class="px-3 py-1 bg-red-500 rounded font-bold">-১</button>
+                        <span id="offsetVal" class="font-bold text-xl">০</span>
+                        <button onclick="adjustHijri(1)" class="px-3 py-1 bg-green-500 rounded font-bold">+১</button>
+                    </div>
+                    <p class="text-[10px] mt-2 text-gray-400">* এই পরিবর্তনটি পুরো ক্যালেন্ডারে প্রভাব ফেলবে।</p>
+                </div>
+            </div>
+
+            <div class="md:col-span-2 bg-white p-6 rounded-xl shadow-md">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 id="monthDisplay" class="text-2xl font-bold text-gray-800">মে ২০২৬</h2>
+                    <div class="flex space-x-2">
+                        <button onclick="changeMonth(-1)" class="p-2 border rounded hover:bg-gray-100 italic">Prev</button>
+                        <button onclick="changeMonth(1)" class="p-2 border rounded hover:bg-gray-100 italic">Next</button>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-7 gap-2 text-center font-bold text-gray-500 border-b pb-2 mb-2">
+                    <div>শনি</div><div>রবি</div><div>সোম</div><div>মঙ্গল</div><div>বুধ</div><div>বৃহঃ</div><div>শুক্র</div>
+                </div>
+                <div id="calendarGrid" class="grid grid-cols-7 gap-2">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentYear = 2026;
+        let currentMonth = 4; // May (0-indexed)
+        let hijriOffset = 0;
+
+        const bnMonths = ["বৈশাখ", "জ্যৈষ্ঠ", "আষাঢ়", "শ্রাবণ", "ভাদ্র", "আশ্বিন", "কার্তিক", "অগ্রহায়ণ", "পৌষ", "মাঘ", "ফাল্গুন", "চৈত্র"];
+        const enMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const monthLabel = document.getElementById('monthDisplay');
+            grid.innerHTML = '';
+
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay(); // 0=Sun, 6=Sat
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            
+            // Adjust for Saturday start (Bangladesh style)
+            let startOffset = (firstDay + 1) % 7; 
+
+            monthLabel.innerText = `${enMonths[currentMonth]} ${currentYear}`;
+
+            // Blank spaces
+            for (let i = 0; i < startOffset; i++) {
+                grid.innerHTML += `<div></div>`;
+            }
+
+            // Days
+            for (let day = 1; day <= daysInMonth; day++) {
+                let dateObj = new Date(currentYear, currentMonth, day);
+                
+                // Hijri Logic (Simple Estimation + Offset)
+                let hijriDate = new Intl.DateTimeFormat('en-u-ca-islamic-uma-nu-latn', {day:'numeric'}).format(dateObj);
+                let finalHijri = parseInt(hijriDate) + hijriOffset;
+
+                // Bengali Logic (Rough Estimation for Demo)
+                // বাস্তব অ্যাপে পূর্ণাঙ্গ সরকারি ক্যালেন্ডার অবজেক্ট ব্যবহার করা হয়।
+                let bnDate = (day + 15) % 30 || 30; 
+
+                const isToday = new Date().toDateString() === dateObj.toDateString();
+
+                grid.innerHTML += `
+                    <div class="border p-2 rounded hover:shadow-inner transition ${isToday ? 'bg-yellow-50 border-yellow-400' : ''}">
+                        <div class="text-lg font-bold">${day}</div>
+                        <div class="flex justify-between text-[10px] text-gray-500 mt-1">
+                            <span class="text-green-700 font-semibold">${bnDate}</span>
+                            <span class="text-red-600 font-semibold">${finalHijri}</span>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function changeMonth(step) {
+            currentMonth += step;
+            if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+            if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+            renderCalendar();
+        }
+
+        function adjustHijri(val) {
+            hijriOffset += val;
+            document.getElementById('offsetVal').innerText = hijriOffset;
+            renderCalendar();
+        }
+
+        function calculateAge() {
+            const dobValue = document.getElementById('dob').value;
+            if (!dobValue) return;
+
+            const dob = new Date(dobValue);
+            const now = new Date();
+            
+            let years = now.getFullYear() - dob.getFullYear();
+            let months = now.getMonth() - dob.getMonth();
+            let days = now.getDate() - dob.getDate();
+
+            if (days < 0) {
+                months--;
+                days += new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+            }
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+
+            document.getElementById('ageResult').innerHTML = `
+                <p class="text-blue-700 text-lg font-bold">${years} বছর, ${months} মাস, ${days} দিন</p>
+                <p class="text-xs mt-1 italic">পরবর্তী জন্মদিন ${11 - months} মাস পর।</p>
+            `;
+        }
+
+        // Init
+        renderCalendar();
+    </script>
+</body>
+</html>
