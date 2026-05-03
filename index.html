@@ -89,7 +89,6 @@
 
     <script>
         // --- Firebase Configuration ---
-        // আপনি Firebase কনসোল থেকে আপনার নিজস্ব কী গুলো এখানে বসাতে পারবেন
         const firebaseConfig = {
             databaseURL: "https://YOUR_DATABASE_URL.firebaseio.com/" 
         };
@@ -101,7 +100,7 @@
         let hijriAdjustment = 0;
         let isAdmin = false;
 
-        // Firebase থেকে ডাটা লোড করা
+        // ডাটাবেজ থেকে হিজরি সমন্বয় লোড
         db.ref('hijriAdj').on('value', (snapshot) => {
             hijriAdjustment = snapshot.val() || 0;
             renderCalendar(currentYear, currentMonth);
@@ -112,7 +111,7 @@
                 togglePanel();
             } else {
                 let pass = prompt("অ্যাডমিন পাসওয়ার্ড দিন:");
-                if(pass === "1234") { // ডিফল্ট পাসওয়ার্ড
+                if(pass === "AmiSumon1") { // আপনার নতুন পাসওয়ার্ড
                     isAdmin = true;
                     togglePanel();
                 } else {
@@ -134,11 +133,9 @@
         function adjustHijri(val, e) {
             e.stopPropagation();
             hijriAdjustment += val;
-            // Firebase এ সেভ করা (যাতে সব ইউজার আপডেট পায়)
             db.ref('hijriAdj').set(hijriAdjustment);
         }
 
-        // বাকি ক্যালেন্ডার লজিক আগের মতোই...
         const hijriMonths = ["যিলক্বদ", "যিলহজ্ব", "মুহাররম", "সফর", "রবিউল আউয়াল", "রবিউস সানি", "জমাদিউল আউয়াল", "জমাদিউস সানি", "রজব", "শাবান", "রমজান", "শাওয়াল"];
         const banglaMonths = ["বৈশাখ", "জ্যৈষ্ঠ", "আষাঢ়", "শ্রাবণ", "ভাদ্র", "আশ্বিন", "কার্তিক", "অগ্রহায়ণ", "পৌষ", "মাঘ", "ফাল্গুন", "চৈত্র"];
         const engMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -146,6 +143,7 @@
 
         function renderCalendar(year, month) {
             const grid = document.getElementById('calendarGrid');
+            if(!grid) return;
             grid.innerHTML = '';
             document.getElementById('monthDisplay').innerText = `${engMonths[month]} ${year}`;
             document.getElementById('adjVal').innerText = hijriAdjustment;
@@ -199,15 +197,22 @@
         }
 
         function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
+        
         function changeMonth(step) {
             currentMonth += step;
             if (currentMonth > 11) { currentMonth = 0; currentYear++; }
             else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
             renderCalendar(currentYear, currentMonth);
         }
-        function updateClock() { document.getElementById('liveTime').innerText = new Date().toLocaleTimeString('en-US', { hour12: true }); }
+
+        function updateClock() {
+            const timeEl = document.getElementById('liveTime');
+            if(timeEl) timeEl.innerText = new Date().toLocaleTimeString('en-US', { hour12: true });
+        }
+
         setInterval(updateClock, 1000);
         updateClock();
+        renderCalendar(currentYear, currentMonth);
     </script>
 </body>
 </html>
