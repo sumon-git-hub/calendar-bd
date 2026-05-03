@@ -12,17 +12,13 @@
         .header-section { background-color: #059669; padding: 25px; text-align: center; color: white; border-radius: 0 0 25px 25px; position: relative; }
         .title-text { font-family: 'Poppins', sans-serif; font-size: 24px; font-weight: 700; }
         .clock-pill { background: rgba(255,255,255,0.15); display: inline-block; padding: 8px 30px; border-radius: 50px; font-size: 22px; margin-top: 15px; font-family: 'Poppins', sans-serif; font-weight: 600; }
-        
-        /* Three Dot Menu & Admin Panel */
         .menu-btn { position: absolute; top: 25px; right: 20px; cursor: pointer; font-size: 24px; color: white; }
         .admin-dropdown { display: none; position: absolute; top: 60px; right: 20px; background: #1e293b; color: white; padding: 15px; border-radius: 12px; z-index: 50; width: 160px; box-shadow: 0 10px 15px rgba(0,0,0,0.2); }
-        
         .date-display { padding: 30px 20px; text-align: center; border-bottom: 1px solid #f1f5f9; }
         .date-row { font-size: 20px; font-weight: 600; color: #334155; margin: 10px 0; font-family: 'Poppins', sans-serif; }
         .calendar-nav { display: flex; justify-content: space-between; align-items: center; padding: 20px; }
         .month-label { font-size: 26px; font-weight: 700; color: #1e293b; font-family: 'Poppins', sans-serif; min-width: 180px; text-align: center; }
         .nav-btn { background: #f8fafc; border: 1px solid #e2e8f0; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 20px; }
-        
         .grid-7 { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; padding: 0 15px; }
         .weekday { text-align: center; font-weight: bold; font-size: 14px; color: #94a3b8; padding-bottom: 15px; font-family: 'Poppins', sans-serif; }
         .day-cell { height: 65px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9; }
@@ -31,6 +27,7 @@
         .today-mark { background: #2563eb !important; border: none; }
         .today-mark * { color: white !important; }
         .friday-text { color: #ef4444 !important; }
+        .footer-note { text-align: center; color: #ef4444; font-weight: 600; font-size: 14px; padding: 20px 10px; }
     </style>
 </head>
 <body>
@@ -69,7 +66,11 @@
             <div class="weekday friday-text">Fri</div>
         </div>
 
-        <div id="calendarGrid" class="grid-7 pb-10"></div>
+        <div id="calendarGrid" class="grid-7"></div>
+
+        <div class="footer-note">
+            * আরবি তারিখ চাঁদ দেখার উপর নির্ভরশীল
+        </div>
     </div>
 
     <script>
@@ -108,21 +109,23 @@
                 const isToday = (year === 2026 && month === 4 && day === 3);
                 const isFri = ((day + startPos) % 7 === 0);
                 
-                // আরবি ২৯ পর্যন্ত লজিক
                 let rawHijri = day + 13 + hijriAdjustment;
-                let hijriDate = rawHijri > 29 ? (rawHijri % 29 === 0 ? 29 : rawHijri % 29) : rawHijri;
+                let hijriNum = rawHijri > 29 ? (rawHijri % 29 === 0 ? 29 : rawHijri % 29) : rawHijri;
+                
+                // ১ তারিখের সাথে স্টার চিহ্ন
+                let hijriDisplay = (hijriNum === 1) ? "1*" : hijriNum;
                 
                 let banglaDate = day + 17 > 31 ? day + 17 - 31 : day + 17;
 
                 grid.innerHTML += `
                     <div class="day-cell ${isToday ? 'today-mark' : ''}">
                         <div class="num-main ${isFri && !isToday ? 'friday-text' : ''}">${day}</div>
-                        <div class="num-sub">${hijriDate}/${banglaDate}</div>
+                        <div class="num-sub">${hijriDisplay}/${banglaDate}</div>
                     </div>
                 `;
 
                 if(isToday) {
-                    document.getElementById('topHijri').innerText = `${hijriDate} Zilkad 1447 Hijri`;
+                    document.getElementById('topHijri').innerText = `${hijriDisplay} Zilkad 1447 Hijri`;
                 }
             }
         }
