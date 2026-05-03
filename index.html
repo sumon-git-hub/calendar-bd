@@ -55,19 +55,19 @@
         </div>
 
         <div class="date-display">
-            <h2 id="topDayName" class="text-2xl font-bold text-emerald-800 mb-4">আজ রবিবার</h2>
-            <div id="topEng" class="date-row eng-num">03 May 2026 AD</div>
+            <h2 id="topDayName" class="text-2xl font-bold text-emerald-800 mb-4"></h2>
+            <div id="topEng" class="date-row eng-num"></div>
             <div id="topHijri" class="date-row"></div>
             <div id="topBangla" class="date-row"></div>
         </div>
 
         <div class="calendar-nav">
             <button class="nav-btn" onclick="changeMonth(-1)">❮</button>
-            <div id="monthDisplay" class="month-label">May 2026</div>
+            <div id="monthDisplay" class="month-label"></div>
             <button class="nav-btn" onclick="changeMonth(1)">❯</button>
         </div>
 
-        <div id="weekdayHeader" class="grid-7">
+        <div class="grid-7">
             <div class="weekday">Sat</div><div class="weekday">Sun</div><div class="weekday">Mon</div>
             <div class="weekday">Tue</div><div class="weekday">Wed</div><div class="weekday">Thu</div>
             <div class="weekday friday-text">Fri</div>
@@ -79,7 +79,7 @@
 
     <div id="detailModal" onclick="closeModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <h3 id="modalDay" class="text-3xl font-bold text-blue-600 mb-4">Sunday</h3>
+            <h3 id="modalDay" class="text-3xl font-bold text-blue-600 mb-4"></h3>
             <div id="modalEng" class="text-xl font-semibold text-gray-700 mb-2 eng-num"></div>
             <div id="modalHijri" class="text-xl font-semibold text-emerald-700 mb-2"></div>
             <div id="modalBangla" class="text-xl font-semibold text-orange-700"></div>
@@ -151,27 +151,18 @@
                 const dateObj = new Date(year, month, day);
                 const diffDays = Math.floor((dateObj - baseDate) / (1000*60*60*24));
                 
-                // নতুন লজিক: সমন্বয় অনুযায়ী ১ তারিখকে ৩০ এ রূপান্তর
+                // হিজরি লজিক
                 let rawHDate = (diffDays + 14 + hijriAdjustment);
                 let hMonthIdx = 0;
-                
-                // ২৯ দিন পর পর মাস পরিবর্তন
-                while (rawHDate > 29) {
-                    rawHDate -= 29;
-                    hMonthIdx = (hMonthIdx + 1) % 12;
-                }
-                while (rawHDate <= 0) {
-                    rawHDate += 29;
-                    hMonthIdx = (hMonthIdx - 1 + 12) % 12;
-                }
+                while (rawHDate > 29) { rawHDate -= 29; hMonthIdx = (hMonthIdx + 1) % 12; }
+                while (rawHDate <= 0) { hMonthIdx = (hMonthIdx - 1 + 12) % 12; rawHDate += 29; }
 
-                // আপনার স্পেশাল রিকোয়েস্ট: ১ তারিখ ৩০ হবে (সমন্বয় থাকলে)
+                // সুমন ভাইয়ের বিশেষ লজিক: ১ তারিখ ৩০ হবে (সমন্বয় থাকলে)
                 let finalHDate = rawHDate;
                 let finalHMonthIdx = hMonthIdx;
-
                 if (hijriAdjustment > 0 && rawHDate === 1) {
                     finalHDate = 30;
-                    finalHMonthIdx = (hMonthIdx - 1 + 12) % 12; // আগের মাসেই থাকবে
+                    finalHMonthIdx = (hMonthIdx - 1 + 12) % 12;
                 }
 
                 // বাংলা তারিখ
@@ -181,7 +172,7 @@
                 const bDaysInMonth = [31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30, 30]; 
                 while(bDate > bDaysInMonth[bMonthIdx]) { bDate -= bDaysInMonth[bMonthIdx]; bMonthIdx = (bMonthIdx + 1) % 12; }
 
-                const isToday = (year === 2026 && month === 4 && day === 3);
+                const isToday = (dateObj.toDateString() === new Date().toDateString());
                 let hDisplay = (finalHDate === 1) ? `1<span class="red-star">*</span>` : finalHDate;
 
                 grid.innerHTML += `
