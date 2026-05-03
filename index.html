@@ -10,13 +10,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Hind Siliguri', sans-serif; background-color: #f1f5f9; }
-        /* ইংরেজি ফন্টের জন্য Poppins ব্যবহার */
-        .eng-font { font-family: 'Poppins', sans-serif; }
+        .eng { font-family: 'Poppins', sans-serif; }
         .main-card { max-width: 450px; margin: 0 auto; background: white; min-height: 100vh; display: flex; flex-direction: column; }
-        .header { background: #059669; padding: 20px; text-align: center; color: white; border-radius: 0 0 20px 20px; }
-        .grid-7 { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; padding: 10px; text-align: center; }
-        .day-box { height: 60px; display: flex; flex-direction: column; justify-content: center; background: #fff; border: 1px solid #eee; border-radius: 10px; }
-        .today { background: #2563eb !important; color: white !important; border: none; }
+        .header { background: #059669; padding: 25px; text-align: center; color: white; border-radius: 0 0 25px 25px; }
+        .grid-7 { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; padding: 12px; text-align: center; }
+        .day-box { height: 62px; display: flex; flex-direction: column; justify-content: center; background: #fff; border: 1px solid #f1f5f9; border-radius: 12px; }
+        .today { background: #2563eb !important; color: white !important; border: none; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3); }
     </style>
 </head>
 <body>
@@ -24,23 +23,23 @@
 <div class="main-card shadow-2xl">
     <div class="header">
         <h1 class="text-xl font-bold">My Smart Calendar</h1>
-        <div id="liveClock" class="text-2xl font-bold mt-2 eng-font">00:00:00 PM</div>
+        <div id="liveClock" class="text-2xl font-bold mt-2 eng tracking-wider">00:00:00 AM</div>
     </div>
 
     <div class="p-6 text-center">
-        <h2 id="topDayName" class="text-2xl font-bold text-emerald-800">আজ লোড হচ্ছে...</h2>
-        <div id="topEng" class="text-lg text-gray-500 mt-1 eng-font font-semibold"></div>
-        <div id="topHij" class="text-lg text-gray-500"></div>
-        <div id="topBan" class="text-lg text-gray-500"></div>
+        <h2 id="topDayName" class="text-2xl font-bold text-emerald-800">লোড হচ্ছে...</h2>
+        <div id="topEng" class="text-lg text-gray-500 mt-1 eng font-semibold tracking-tight"></div>
+        <div id="topHij" class="text-lg text-gray-600 font-medium"></div>
+        <div id="topBan" class="text-lg text-gray-600 font-medium"></div>
     </div>
 
     <div class="flex justify-between items-center px-10 py-2">
-        <button onclick="moveMonth(-1)" class="text-3xl font-bold p-2 text-gray-300">❮</button>
-        <div id="monthLabel" class="text-xl font-bold text-gray-800 eng-font">May 2026</div>
-        <button onclick="moveMonth(1)" class="text-3xl font-bold p-2 text-gray-300">❯</button>
+        <button onclick="moveMonth(-1)" class="text-3xl font-bold p-2 text-gray-300 hover:text-emerald-600">❮</button>
+        <div id="monthLabel" class="text-xl font-bold text-gray-800 eng">May 2026</div>
+        <button onclick="moveMonth(1)" class="text-3xl font-bold p-2 text-gray-300 hover:text-emerald-600">❯</button>
     </div>
 
-    <div class="grid-7 text-[10px] font-bold text-gray-400 uppercase tracking-widest eng-font mt-2">
+    <div class="grid-7 text-[10px] font-bold text-gray-400 uppercase tracking-widest eng mt-2">
         <div>Sat</div><div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div class="text-red-500">Fri</div>
     </div>
     <div id="calGrid" class="grid-7"></div>
@@ -51,7 +50,7 @@
 </div>
 
 <script>
-    // আপনার আগের ডাটাবেজ লিঙ্কটি এখানে বসান
+    // আপনার Firebase Config এখানে বসান
     const firebaseConfig = { databaseURL: "https://YOUR_DATABASE_URL.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
@@ -63,7 +62,10 @@
     const engMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const bnDays = ["রবিবার", "সোমবার", "মঙ্গলবার", "বুধবার", "বৃহস্পতিবার", "শুক্রবার", "শনিবার"];
 
-    // হিজরি সমন্বয় লোড করা
+    // প্রথমে একবার রেন্ডার করে নেওয়া যাতে স্ক্রিন সাদা না থাকে
+    updateUI();
+
+    // এরপর Firebase থেকে ডেটা আসলে আপডেট হবে
     db.ref('hijriAdj').on('value', (snap) => {
         adjH = snap.val() || 0;
         updateUI();
@@ -71,6 +73,7 @@
 
     function updateUI() {
         const grid = document.getElementById('calGrid');
+        if(!grid) return;
         grid.innerHTML = '';
         document.getElementById('monthLabel').innerText = `${engMonths[viewM]} ${viewY}`;
 
@@ -80,7 +83,7 @@
 
         for (let i = 0; i < offset; i++) grid.innerHTML += '<div></div>';
 
-        const base = new Date(2026, 4, 3);
+        const base = new Date(2026, 4, 3); // বেস ৩ মে ২০২৬
 
         for (let d = 1; d <= totalDays; d++) {
             const date = new Date(viewY, viewM, d);
@@ -90,8 +93,11 @@
             if(hD === 0) hD = 29;
             let hMIdx = (Math.floor((diff + 14) / 29) % 12 + 12) % 12;
 
-            // হিজরি ১ তারিখকে ৩০ বানানোর সমন্বয়
-            if (adjH > 0 && hD === 1) { hD = 30; hMIdx = (hMIdx - 1 + 12) % 12; }
+            // ১ তারিখকে ৩০ বানানোর স্পেশাল লজিক
+            if (adjH > 0 && hD === 1) { 
+                hD = 30; 
+                hMIdx = (hMIdx - 1 + 12) % 12; 
+            }
 
             let bD = Math.round((date - new Date(2026, 3, 14)) / 86400000) + 1;
             let bMIdx = 0, bLens = [31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30, 30];
@@ -99,7 +105,7 @@
 
             const isT = (date.toDateString() === new Date().toDateString());
             grid.innerHTML += `<div class="day-box ${isT?'today':''}">
-                <div class="font-bold text-lg eng-font">${d}</div>
+                <div class="font-bold text-lg eng leading-tight">${d}</div>
                 <div class="text-[9px] font-bold opacity-80">${hD}/${bD}</div>
             </div>`;
 
