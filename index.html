@@ -11,14 +11,13 @@
         .main-card { max-width: 450px; margin: 0 auto; background: white; min-height: 100vh; position: relative; }
         .header-section { background-color: #059669; padding: 25px; text-align: center; color: white; border-radius: 0 0 25px 25px; }
         .clock-pill { background: rgba(255,255,255,0.15); display: inline-block; padding: 8px 30px; border-radius: 50px; font-size: 22px; margin-top: 15px; font-family: 'Poppins', sans-serif; }
-        .date-display { padding: 20px; text-align: center; border-bottom: 1px solid #f1f5f9; }
         .eng-num { font-family: 'Poppins', sans-serif; }
-        .day-cell { height: 65px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9; cursor: pointer; transition: 0.2s; }
-        .day-cell:active { transform: scale(0.95); background: #e2e8f0; }
-        .today-mark { background: #2563eb !important; color: white !important; }
+        .day-cell { height: 75px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9; cursor: pointer; position: relative; }
+        .today-mark { background: #2563eb !important; color: white !important; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3); }
         .friday-text { color: #ef4444 !important; }
         /* Modal Style */
-        #detailModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+        #detailModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
+        .note-dot { width: 5px; height: 5px; background: #ef4444; border-radius: 50%; position: absolute; bottom: 8px; }
     </style>
 </head>
 <body>
@@ -29,7 +28,7 @@
         <div id="liveTime" class="clock-pill">00:00:00 AM</div>
     </div>
 
-    <div class="date-display">
+    <div class="p-6 text-center">
         <h2 id="topDayName" class="text-2xl font-bold text-emerald-800 mb-2">লোড হচ্ছে...</h2>
         <div id="topEng" class="text-lg font-semibold text-gray-500 eng-num"></div>
         <div id="topHijri" class="text-md font-medium text-slate-700"></div>
@@ -37,29 +36,46 @@
     </div>
 
     <div class="flex justify-between items-center px-6 py-4">
-        <button onclick="changeMonth(-1)" class="text-2xl text-gray-400">❮</button>
+        <button onclick="changeMonth(-1)" class="text-2xl text-gray-400 font-bold">❮</button>
         <div id="monthDisplay" class="text-xl font-bold text-slate-800 eng-num"></div>
-        <button onclick="changeMonth(1)" class="text-2xl text-gray-400">❯</button>
+        <button onclick="changeMonth(1)" class="text-2xl text-gray-400 font-bold">❯</button>
     </div>
 
-    <div class="grid grid-cols-7 gap-2 px-4 mb-2 text-center text-xs font-bold text-gray-400">
+    <div class="grid grid-cols-7 gap-2 px-4 mb-2 text-center text-[10px] font-bold text-gray-400">
         <div>SAT</div><div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div class="text-red-400">FRI</div>
     </div>
     <div id="calendarGrid" class="grid grid-cols-7 gap-2 px-4 pb-10"></div>
 </div>
 
 <div id="detailModal">
-    <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl">
-        <h2 id="modalDate" class="text-xl font-bold text-emerald-800 mb-4 border-b pb-2"></h2>
-        <div class="space-y-2 mb-6">
-            <p id="modalHijri" class="text-gray-700"></p>
-            <p id="modalBangla" class="text-gray-700"></p>
+    <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl scale-up">
+        <div class="flex justify-between items-start mb-4 border-b pb-3">
+            <div>
+                <h2 id="modalDate" class="text-xl font-bold text-emerald-800 eng-num"></h2>
+                <p id="modalDay" class="text-emerald-600 font-bold text-sm"></p>
+            </div>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-xl">✕</button>
         </div>
-        <label class="block text-sm font-bold text-gray-500 mb-1">নোট লিখে রাখুন:</label>
-        <textarea id="noteArea" class="w-full border rounded-lg p-3 h-24 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="এখানে লিখুন..."></textarea>
+        
+        <div class="space-y-3 mb-6">
+            <div class="flex items-center gap-2">
+                <span class="text-xl">🌙</span>
+                <p id="modalHijri" class="text-gray-700 font-medium"></p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-xl">🌾</span>
+                <p id="modalBangla" class="text-gray-700 font-medium"></p>
+            </div>
+        </div>
+
+        <div class="bg-gray-50 p-4 rounded-2xl">
+            <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">নোট লিখে রাখুন</label>
+            <textarea id="noteArea" class="w-full bg-transparent border-none focus:ring-0 p-0 h-24 text-gray-700 placeholder-gray-300 resize-none" placeholder="আজকের বিশেষ কিছু..."></textarea>
+        </div>
+
         <div class="flex gap-3 mt-6">
-            <button onclick="saveNote()" class="flex-1 bg-emerald-600 text-white py-2 rounded-xl font-bold">সেভ করুন</button>
-            <button onclick="closeModal()" class="flex-1 bg-gray-200 text-gray-700 py-2 rounded-xl font-bold">বন্ধ করুন</button>
+            <button onclick="saveNote()" class="flex-[2] bg-emerald-600 text-white py-3 rounded-2xl font-bold shadow-lg shadow-emerald-200">সেভ করুন</button>
+            <button onclick="closeModal()" class="flex-1 bg-gray-100 text-gray-500 py-3 rounded-2xl font-bold">বন্ধ</button>
         </div>
     </div>
 </div>
@@ -90,7 +106,6 @@
             const dateObj = new Date(year, month, day);
             const isToday = (dateObj.toDateString() === realToday.toDateString());
             
-            // ক্যালকুলেশন
             let diffDays = Math.floor((dateObj - new Date(2026, 4, 3)) / 86400000);
             let hDate = ((diffDays + 14) % 29 + 29) % 29 || 29;
             let hM = (Math.floor((diffDays + 14) / 29) % 12 + 12) % 12;
@@ -100,13 +115,14 @@
             const bLens = [31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30, 30]; 
             while(bMonthIdx < 12 && bDate > bLens[bMonthIdx]) { bDate -= bLens[bMonthIdx]; bMonthIdx++; }
 
-            const hasNote = localStorage.getItem(`${year}-${month}-${day}`) ? "●" : "";
+            const note = localStorage.getItem(`${year}-${month}-${day}`);
+            const dot = note ? '<div class="note-dot"></div>' : '';
 
             grid.innerHTML += `
-                <div class="day-cell ${isToday ? 'today-mark' : ''}" onclick="showDetails(${day}, ${hDate}, '${hijriMonths[hM]}', ${bDate}, '${banglaMonths[bMonthIdx]}')">
+                <div class="day-cell ${isToday ? 'today-mark' : ''}" onclick="showDetails(${day}, ${hDate}, '${hijriMonths[hM]}', ${bDate}, '${banglaMonths[bMonthIdx]}', '${dayNamesBn[dateObj.getDay()]}')">
                     <div class="text-lg font-bold eng-num ${dateObj.getDay() === 5 && !isToday ? 'friday-text' : ''}">${day}</div>
-                    <div class="text-[10px] eng-num font-semibold opacity-80">${hDate}/${bDate}</div>
-                    <div class="text-[8px] text-red-500 leading-none mt-1">${hasNote}</div>
+                    <div class="text-[10px] eng-num font-semibold opacity-70">${hDate}/${bDate}</div>
+                    ${dot}
                 </div>
             `;
 
@@ -121,11 +137,12 @@
         document.getElementById('topBangla').innerText = `${bd} ${banglaMonths[bm]} 1433 বঙ্গাব্দ`;
     }
 
-    function showDetails(day, hDate, hMonth, bDate, bMonth) {
+    function showDetails(day, hDate, hMonth, bDate, bMonth, dayName) {
         selectedDateKey = `${currentYear}-${currentMonth}-${day}`;
         document.getElementById('modalDate').innerText = `${day} ${engMonths[currentMonth]} ${currentYear}`;
-        document.getElementById('modalHijri').innerText = `🌙 হিজরি: ${hDate} ${hMonth}`;
-        document.getElementById('modalBangla').innerText = `🌾 বাংলা: ${bDate} ${bMonth}`;
+        document.getElementById('modalDay').innerText = dayName;
+        document.getElementById('modalHijri').innerText = `হিজরি: ${hDate} ${hMonth} 1447`;
+        document.getElementById('modalBangla').innerText = `বাংলা: ${bDate} ${bMonth} 1433`;
         document.getElementById('noteArea').value = localStorage.getItem(selectedDateKey) || "";
         document.getElementById('detailModal').style.display = 'flex';
     }
