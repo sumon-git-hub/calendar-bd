@@ -11,20 +11,20 @@
         .main-card { max-width: 450px; margin: 0 auto; background: white; min-height: 100vh; position: relative; }
         
         /* Clean Green Header */
-        .header-section { background: #059669; padding: 30px 20px; text-align: center; color: white; border-radius: 0 0 30px 30px; position: relative; }
-        .clock-pill { background: rgba(255,255,255,0.15); display: inline-block; padding: 10px 30px; border-radius: 50px; font-size: 24px; margin-top: 15px; font-family: 'Poppins', sans-serif; font-weight: 700; border: 1px solid rgba(255,255,255,0.2); }
+        .header-section { background: #059669; padding: 25px 20px 15px 20px; text-align: center; color: white; border-radius: 0 0 30px 30px; position: relative; overflow: hidden; }
+        .clock-pill { background: rgba(255,255,255,0.15); display: inline-block; padding: 8px 25px; border-radius: 50px; font-size: 22px; margin-top: 10px; font-family: 'Poppins', sans-serif; font-weight: 700; border: 1px solid rgba(255,255,255,0.2); }
         
+        /* Integrated Scroll Message */
+        .marquee-box { background: #047857; color: #d1fae5; font-size: 13px; padding: 4px 0; border-radius: 0 0 25px 25px; margin-top: -10px; z-index: 10; position: relative; }
+
         .eng-num { font-family: 'Poppins', sans-serif; }
-        
-        /* Grid Design */
         .day-cell { height: 75px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #ffffff; border-radius: 15px; border: 1px solid #f1f5f9; cursor: pointer; transition: 0.2s; position: relative; }
         .today-mark { background: #2563eb !important; color: white !important; border: none; box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3); }
         .friday-text { color: #ef4444 !important; font-weight: 700; }
         
         .note-indicator { width: 5px; height: 5px; background: #ef4444; border-radius: 50%; position: absolute; bottom: 8px; }
-        .menu-icon { position: absolute; top: 25px; right: 20px; cursor: pointer; opacity: 0.8; }
+        .menu-icon { position: absolute; top: 20px; right: 20px; cursor: pointer; padding: 5px; background: rgba(255,255,255,0.1); border-radius: 10px; }
 
-        /* Smooth Modal */
         #detailModal, #adminModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
         .modal-box { background: white; width: 100%; max-width: 380px; border-radius: 25px; padding: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
     </style>
@@ -33,11 +33,15 @@
 
 <div class="main-card shadow-sm">
     <div class="header-section">
-        <div class="menu-icon" onclick="checkAdmin()">
-            <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/></svg>
+        <div class="menu-icon" onclick="openAdmin()">
+            <svg width="24" height="24" fill="white" viewBox="0 0 16 16"><path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/></svg>
         </div>
-        <h1 class="text-lg font-bold font-[Poppins] opacity-90 uppercase tracking-widest">My Smart Calendar</h1>
+        <h1 class="text-md font-bold font-[Poppins] opacity-80 uppercase tracking-widest">My Smart Calendar</h1>
         <div id="liveTime" class="clock-pill">00:00:00 AM</div>
+    </div>
+
+    <div class="marquee-box">
+        <marquee id="scrollText" behavior="scroll" direction="left">My Smart Calendar-এ আপনাকে স্বাগতম!</marquee>
     </div>
 
     <div class="py-6 px-4 text-center">
@@ -50,38 +54,40 @@
     </div>
 
     <div class="flex justify-between items-center px-10 mb-4">
-        <button onclick="changeMonth(-1)" class="text-2xl text-slate-300 hover:text-emerald-600 transition">❮</button>
+        <button onclick="changeMonth(-1)" class="text-2xl text-slate-300">❮</button>
         <div id="monthDisplay" class="text-xl font-bold text-slate-700 eng-num"></div>
-        <button onclick="changeMonth(1)" class="text-2xl text-slate-300 hover:text-emerald-600 transition">❯</button>
+        <button onclick="changeMonth(1)" class="text-2xl text-slate-300">❯</button>
     </div>
 
-    <div class="grid grid-cols-7 gap-2 px-5 mb-2 text-center text-[10px] font-bold text-slate-300 uppercase tracking-tighter">
+    <div class="grid grid-cols-7 gap-2 px-5 mb-2 text-center text-[10px] font-bold text-slate-300">
         <div>SAT</div><div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div class="text-red-400">FRI</div>
     </div>
-
     <div id="calendarGrid" class="grid grid-cols-7 gap-2 px-5 pb-10"></div>
 </div>
 
 <div id="adminModal">
     <div class="modal-box">
-        <h2 class="text-xl font-bold mb-4 text-slate-800 border-b pb-2">অ্যাডমিন প্যানেল</h2>
-        <p class="text-sm text-slate-500 mb-4">আপনি এখান থেকে ক্যালেন্ডারের বিশেষ সেটিংস পরিবর্তন করতে পারবেন।</p>
-        <button onclick="closeAdmin()" class="w-full bg-slate-100 text-slate-600 py-3 rounded-xl font-bold">বন্ধ করুন</button>
+        <h2 class="text-xl font-bold mb-4 text-slate-800">অ্যাডমিন প্যানেল</h2>
+        <label class="block text-sm font-bold text-slate-500 mb-2">স্ক্রল মেসেজ লিখুন:</label>
+        <textarea id="adminMsgInput" class="w-full border rounded-xl p-3 h-20 outline-none focus:ring-2 focus:ring-emerald-500 mb-4" placeholder="মেসেজ দিন..."></textarea>
+        <div class="flex gap-3">
+            <button onclick="saveAdminMsg()" class="flex-1 bg-emerald-600 text-white py-3 rounded-xl font-bold">সেভ</button>
+            <button onclick="closeAdmin()" class="flex-1 bg-slate-100 text-slate-500 py-3 rounded-xl font-bold">বন্ধ</button>
+        </div>
     </div>
 </div>
 
 <div id="detailModal">
     <div class="modal-box">
         <div class="text-center mb-5">
-            <h2 id="modalDate" class="text-xl font-bold text-slate-800 eng-num border-b pb-2"></h2>
-            <p id="modalDay" class="text-emerald-600 font-bold mt-2"></p>
+            <h2 id="modalDate" class="text-xl font-bold text-slate-800 eng-num"></h2>
+            <p id="modalDay" class="text-emerald-600 font-bold mt-1"></p>
         </div>
-        <div class="space-y-3 mb-6 bg-slate-50 p-4 rounded-2xl">
+        <div class="bg-slate-50 p-4 rounded-2xl space-y-2 mb-6">
             <p id="modalHijri" class="text-slate-700 font-medium"></p>
             <p id="modalBangla" class="text-slate-700 font-medium"></p>
         </div>
-        <label class="block text-xs font-bold text-slate-400 mb-2 uppercase">নোট লিখে রাখুন</label>
-        <textarea id="noteArea" class="w-full border rounded-xl p-3 h-24 focus:ring-2 focus:ring-emerald-500 outline-none text-slate-700" placeholder="এখানে লিখুন..."></textarea>
+        <textarea id="noteArea" class="w-full border rounded-xl p-3 h-24 outline-none" placeholder="নোট লিখুন..."></textarea>
         <div class="flex gap-3 mt-6">
             <button onclick="saveNote()" class="flex-1 bg-emerald-600 text-white py-3 rounded-xl font-bold">সেভ করুন</button>
             <button onclick="closeModal()" class="flex-1 bg-slate-100 text-slate-500 py-3 rounded-xl font-bold">বন্ধ</button>
@@ -99,17 +105,23 @@
     const engMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const dayNamesBn = ["রবিবার", "সোমবার", "মঙ্গলবার", "বুধবার", "বৃহস্পতিবার", "শুক্রবার", "শনিবার"];
 
-    function checkAdmin() {
-        let pass = prompt("পাসওয়ার্ড দিন:");
-        if (pass === "1212") {
+    // Admin Functions
+    function openAdmin() {
+        if (prompt("পাসওয়ার্ড দিন:") === "1212") {
             document.getElementById('adminModal').style.display = 'flex';
-        } else if (pass !== null) {
-            alert("ভুল পাসওয়ার্ড!");
+        } else { alert("ভুল পাসওয়ার্ড!"); }
+    }
+    function closeAdmin() { document.getElementById('adminModal').style.display = 'none'; }
+    function saveAdminMsg() {
+        const msg = document.getElementById('adminMsgInput').value;
+        if(msg.trim()) {
+            document.getElementById('scrollText').innerText = msg;
+            localStorage.setItem('savedScrollMsg', msg);
         }
+        closeAdmin();
     }
 
-    function closeAdmin() { document.getElementById('adminModal').style.display = 'none'; }
-
+    // Calendar Functions
     function renderCalendar(year, month) {
         const grid = document.getElementById('calendarGrid');
         const realToday = new Date();
@@ -117,7 +129,7 @@
         document.getElementById('monthDisplay').innerText = `${engMonths[month]} ${year}`;
 
         const firstDay = new Date(year, month, 1).getDay();
-        const startPos = (firstDay + 1) % 7; 
+        const startPos = (firstDay + 1) % 7;
         const daysInMonth = new Date(year, month + 1, 0).getDate();
 
         for (let i = 0; i < startPos; i++) grid.innerHTML += '<div></div>';
@@ -126,7 +138,6 @@
             const dateObj = new Date(year, month, day);
             const isToday = (dateObj.toDateString() === realToday.toDateString());
             
-            // ক্যালকুলেশন (ইংরেজি সংখ্যায়)
             let diffDays = Math.floor((dateObj - new Date(2026, 4, 3)) / 86400000);
             let hDate = ((diffDays + 14) % 29 + 29) % 29 || 29;
             let hM = (Math.floor((diffDays + 14) / 29) % 12 + 12) % 12;
@@ -166,9 +177,7 @@
     }
 
     function saveNote() {
-        const txt = document.getElementById('noteArea').value;
-        if(txt.trim()) localStorage.setItem(selectedDateKey, txt);
-        else localStorage.removeItem(selectedDateKey);
+        localStorage.setItem(selectedDateKey, document.getElementById('noteArea').value);
         closeModal();
         renderCalendar(currentYear, currentMonth);
     }
@@ -176,7 +185,10 @@
     function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
     function changeMonth(s) { currentMonth += s; if(currentMonth>11){currentMonth=0;currentYear++;} else if(currentMonth<0){currentMonth=11;currentYear--;} renderCalendar(currentYear, currentMonth); }
 
-    // Live Clock Fix
+    // Init
+    const savedMsg = localStorage.getItem('savedScrollMsg');
+    if(savedMsg) document.getElementById('scrollText').innerText = savedMsg;
+    
     setInterval(() => {
         document.getElementById('liveTime').innerText = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
     }, 1000);
