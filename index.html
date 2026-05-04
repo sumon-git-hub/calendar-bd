@@ -4,125 +4,145 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Smart Calendar</title>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Hind Siliguri', sans-serif; background-color: #f1f5f9; }
-        .main-card { max-width: 450px; margin: 0 auto; background: white; min-height: 100vh; position: relative; overflow: hidden; }
-        .header-section { background-color: #059669; padding: 25px; text-align: center; color: white; border-radius: 0 0 25px 25px; position: relative; }
-        .clock-pill { background: rgba(255,255,255,0.15); display: inline-block; padding: 8px 30px; border-radius: 50px; font-size: 22px; margin-top: 15px; font-family: 'Poppins', sans-serif; font-weight: 600; }
-        .date-display { padding: 30px 20px; text-align: center; border-bottom: 1px solid #f1f5f9; }
-        .date-row { font-size: 18px; font-weight: 600; color: #334155; margin: 5px 0; }
+        .main-card { max-width: 450px; margin: 0 auto; background: white; min-height: 100vh; position: relative; }
+        .header-section { background-color: #059669; padding: 25px; text-align: center; color: white; border-radius: 0 0 25px 25px; }
+        .clock-pill { background: rgba(255,255,255,0.15); display: inline-block; padding: 8px 30px; border-radius: 50px; font-size: 22px; margin-top: 15px; font-family: 'Poppins', sans-serif; }
+        .date-display { padding: 20px; text-align: center; border-bottom: 1px solid #f1f5f9; }
         .eng-num { font-family: 'Poppins', sans-serif; }
-        .calendar-nav { display: flex; justify-content: space-between; align-items: center; padding: 20px; }
-        .day-cell { height: 65px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9; cursor: pointer; }
-        .today-mark { background: #2563eb !important; border: none; }
-        .today-mark * { color: white !important; }
+        .day-cell { height: 65px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9; cursor: pointer; transition: 0.2s; }
+        .day-cell:active { transform: scale(0.95); background: #e2e8f0; }
+        .today-mark { background: #2563eb !important; color: white !important; }
         .friday-text { color: #ef4444 !important; }
+        /* Modal Style */
+        #detailModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
     </style>
 </head>
 <body>
 
-    <div class="main-card shadow-lg">
-        <div class="header-section">
-            <h1 class="text-2xl font-bold font-[Poppins]">My Smart Calendar</h1>
-            <div id="liveTime" class="clock-pill">00:00:00 AM</div>
-        </div>
-
-        <div class="date-display">
-            <h2 id="topDayName" class="text-2xl font-bold text-emerald-800 mb-2">লোড হচ্ছে...</h2>
-            <div id="topEng" class="date-row eng-num text-gray-500"></div>
-            <div id="topHijri" class="date-row text-slate-700"></div>
-            <div id="topBangla" class="date-row text-slate-700"></div>
-        </div>
-
-        <div class="calendar-nav">
-            <button class="text-gray-400 text-2xl" onclick="changeMonth(-1)">❮</button>
-            <div id="monthDisplay" class="text-xl font-bold text-slate-800 eng-num"></div>
-            <button class="text-gray-400 text-2xl" onclick="changeMonth(1)">❯</button>
-        </div>
-
-        <div class="grid grid-cols-7 gap-2 px-4 mb-2">
-            <div class="text-center text-xs font-bold text-gray-400">SAT</div>
-            <div class="text-center text-xs font-bold text-gray-400">SUN</div>
-            <div class="text-center text-xs font-bold text-gray-400">MON</div>
-            <div class="text-center text-xs font-bold text-gray-400">TUE</div>
-            <div class="text-center text-xs font-bold text-gray-400">WED</div>
-            <div class="text-center text-xs font-bold text-gray-400">THU</div>
-            <div class="text-center text-xs font-bold text-red-400">FRI</div>
-        </div>
-
-        <div id="calendarGrid" class="grid grid-cols-7 gap-2 px-4 pb-10"></div>
+<div class="main-card shadow-lg">
+    <div class="header-section">
+        <h1 class="text-2xl font-bold font-[Poppins]">My Smart Calendar</h1>
+        <div id="liveTime" class="clock-pill">00:00:00 AM</div>
     </div>
 
-    <script>
-        let currentYear = new Date().getFullYear();
-        let currentMonth = new Date().getMonth(); 
+    <div class="date-display">
+        <h2 id="topDayName" class="text-2xl font-bold text-emerald-800 mb-2">লোড হচ্ছে...</h2>
+        <div id="topEng" class="text-lg font-semibold text-gray-500 eng-num"></div>
+        <div id="topHijri" class="text-md font-medium text-slate-700"></div>
+        <div id="topBangla" class="text-md font-medium text-slate-700"></div>
+    </div>
 
-        const hijriMonths = ["যিলক্বদ", "যিলহজ্ব", "মুহাররম", "সফর", "রবিউল আউয়াল", "রবিউস সানি", "জমাদিউল আউয়াল", "জমাদিউস সানি", "রজব", "শাবান", "রমজান", "শাওয়াল"];
-        const banglaMonths = ["বৈশাখ", "জ্যৈষ্ঠ", "আষাঢ়", "শ্রাবণ", "ভাদ্র", "আশ্বিন", "কার্তিক", "অগ্রহায়ণ", "পৌষ", "মাঘ", "ফাল্গুন", "চৈত্র"];
-        const engMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        const dayNamesBn = ["রবিবার", "সোমবার", "মঙ্গলবার", "বুধবার", "বৃহস্পতিবার", "শুক্রবার", "শনিবার"];
+    <div class="flex justify-between items-center px-6 py-4">
+        <button onclick="changeMonth(-1)" class="text-2xl text-gray-400">❮</button>
+        <div id="monthDisplay" class="text-xl font-bold text-slate-800 eng-num"></div>
+        <button onclick="changeMonth(1)" class="text-2xl text-gray-400">❯</button>
+    </div>
 
-        function renderCalendar(year, month) {
-            const grid = document.getElementById('calendarGrid');
-            const realToday = new Date();
+    <div class="grid grid-cols-7 gap-2 px-4 mb-2 text-center text-xs font-bold text-gray-400">
+        <div>SAT</div><div>SUN</div><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div class="text-red-400">FRI</div>
+    </div>
+    <div id="calendarGrid" class="grid grid-cols-7 gap-2 px-4 pb-10"></div>
+</div>
+
+<div id="detailModal">
+    <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl">
+        <h2 id="modalDate" class="text-xl font-bold text-emerald-800 mb-4 border-b pb-2"></h2>
+        <div class="space-y-2 mb-6">
+            <p id="modalHijri" class="text-gray-700"></p>
+            <p id="modalBangla" class="text-gray-700"></p>
+        </div>
+        <label class="block text-sm font-bold text-gray-500 mb-1">নোট লিখে রাখুন:</label>
+        <textarea id="noteArea" class="w-full border rounded-lg p-3 h-24 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="এখানে লিখুন..."></textarea>
+        <div class="flex gap-3 mt-6">
+            <button onclick="saveNote()" class="flex-1 bg-emerald-600 text-white py-2 rounded-xl font-bold">সেভ করুন</button>
+            <button onclick="closeModal()" class="flex-1 bg-gray-200 text-gray-700 py-2 rounded-xl font-bold">বন্ধ করুন</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentYear = new Date().getFullYear();
+    let currentMonth = new Date().getMonth();
+    let selectedDateKey = "";
+
+    const hijriMonths = ["যিলক্বদ", "যিলহজ্ব", "মুহাররম", "সফর", "রবিউল আউয়াল", "রবিউস সানি", "জমাদিউল আউয়াল", "জমাদিউস সানি", "রজব", "শাবান", "রমজান", "শাওয়াল"];
+    const banglaMonths = ["বৈশাখ", "জ্যৈষ্ঠ", "আষাঢ়", "শ্রাবণ", "ভাদ্র", "আশ্বিন", "কার্তিক", "অগ্রহায়ণ", "পৌষ", "মাঘ", "ফালগুন", "চৈত্র"];
+    const engMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const dayNamesBn = ["রবিবার", "সোমবার", "মঙ্গলবার", "বুধবার", "বৃহস্পতিবার", "শুক্রবার", "শনিবার"];
+
+    function renderCalendar(year, month) {
+        const grid = document.getElementById('calendarGrid');
+        const realToday = new Date();
+        grid.innerHTML = '';
+        document.getElementById('monthDisplay').innerText = `${engMonths[month]} ${year}`;
+
+        const firstDay = new Date(year, month, 1).getDay();
+        const startPos = (firstDay + 1) % 7;
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        for (let i = 0; i < startPos; i++) grid.innerHTML += '<div></div>';
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateObj = new Date(year, month, day);
+            const isToday = (dateObj.toDateString() === realToday.toDateString());
             
-            grid.innerHTML = '';
-            document.getElementById('monthDisplay').innerText = `${engMonths[month]} ${year}`;
+            // ক্যালকুলেশন
+            let diffDays = Math.floor((dateObj - new Date(2026, 4, 3)) / 86400000);
+            let hDate = ((diffDays + 14) % 29 + 29) % 29 || 29;
+            let hM = (Math.floor((diffDays + 14) / 29) % 12 + 12) % 12;
 
-            const firstDay = new Date(year, month, 1).getDay();
-            const startPos = (firstDay + 1) % 7; 
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            let bDiff = Math.floor((dateObj - new Date(2026, 3, 14)) / 86400000) + 1;
+            let bMonthIdx = 0, bDate = bDiff;
+            const bLens = [31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30, 30]; 
+            while(bMonthIdx < 12 && bDate > bLens[bMonthIdx]) { bDate -= bLens[bMonthIdx]; bMonthIdx++; }
 
-            for (let i = 0; i < startPos; i++) grid.innerHTML += '<div></div>';
+            const hasNote = localStorage.getItem(`${year}-${month}-${day}`) ? "●" : "";
 
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dateObj = new Date(year, month, day);
-                const isToday = (dateObj.toDateString() === realToday.toDateString());
-                
-                // হিজরি ক্যালকুলেশন
-                let diffDays = Math.floor((dateObj - new Date(2026, 4, 3)) / (1000*60*60*24));
-                let hTotalDays = diffDays + 14; 
-                let hDate = ((hTotalDays % 29) + 29) % 29 || 29;
-                let hMonthIdx = (Math.floor(hTotalDays / 29) % 12 + 12) % 12;
+            grid.innerHTML += `
+                <div class="day-cell ${isToday ? 'today-mark' : ''}" onclick="showDetails(${day}, ${hDate}, '${hijriMonths[hM]}', ${bDate}, '${banglaMonths[bMonthIdx]}')">
+                    <div class="text-lg font-bold eng-num ${dateObj.getDay() === 5 && !isToday ? 'friday-text' : ''}">${day}</div>
+                    <div class="text-[10px] eng-num font-semibold opacity-80">${hDate}/${bDate}</div>
+                    <div class="text-[8px] text-red-500 leading-none mt-1">${hasNote}</div>
+                </div>
+            `;
 
-                // বাংলা ক্যালকুলেশন
-                let bTotalDays = Math.floor((dateObj - new Date(2026, 3, 14)) / (1000*60*60*24)) + 1;
-                let bMonthIdx = 0, bDate = bTotalDays;
-                const bLens = [31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30, 30]; 
-                while(bMonthIdx < 12 && bDate > bLens[bMonthIdx]) { bDate -= bLens[bMonthIdx]; bMonthIdx++; }
-
-                grid.innerHTML += `
-                    <div class="day-cell ${isToday ? 'today-mark' : ''}">
-                        <div class="text-lg font-bold eng-num ${dateObj.getDay() === 5 && !isToday ? 'friday-text' : ''}">${day}</div>
-                        <div class="text-[10px] eng-num">${hDate}/${bDate}</div>
-                    </div>
-                `;
-
-                if(isToday) {
-                    document.getElementById('topDayName').innerText = `আজ ${dayNamesBn[dateObj.getDay()]}`;
-                    document.getElementById('topEng').innerText = `${day} ${engMonths[month]} ${year} AD`;
-                    document.getElementById('topHijri').innerText = `${hDate} ${hijriMonths[hMonthIdx]} ১৪৪৭ হিজরি`;
-                    document.getElementById('topBangla').innerText = `${bDate} ${banglaMonths[bMonthIdx]} ১৪৩৩ বঙ্গাব্দ`;
-                }
-            }
+            if(isToday) updateTopDisplay(day, year, month, hDate, hM, bDate, bMonthIdx, dateObj.getDay());
         }
+    }
 
-        function changeMonth(step) {
-            currentMonth += step;
-            if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-            else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-            renderCalendar(currentYear, currentMonth);
-        }
+    function updateTopDisplay(d, y, m, hd, hm, bd, bm, dw) {
+        document.getElementById('topDayName').innerText = `আজ ${dayNamesBn[dw]}`;
+        document.getElementById('topEng').innerText = `${d} ${engMonths[m]} ${y} AD`;
+        document.getElementById('topHijri').innerText = `${hd} ${hijriMonths[hm]} 1447 হিজরি`;
+        document.getElementById('topBangla').innerText = `${bd} ${banglaMonths[bm]} 1433 বঙ্গাব্দ`;
+    }
 
-        setInterval(() => {
-            document.getElementById('liveTime').innerText = new Date().toLocaleTimeString('en-US', { hour12: true });
-        }, 1000);
+    function showDetails(day, hDate, hMonth, bDate, bMonth) {
+        selectedDateKey = `${currentYear}-${currentMonth}-${day}`;
+        document.getElementById('modalDate').innerText = `${day} ${engMonths[currentMonth]} ${currentYear}`;
+        document.getElementById('modalHijri').innerText = `🌙 হিজরি: ${hDate} ${hMonth}`;
+        document.getElementById('modalBangla').innerText = `🌾 বাংলা: ${bDate} ${bMonth}`;
+        document.getElementById('noteArea').value = localStorage.getItem(selectedDateKey) || "";
+        document.getElementById('detailModal').style.display = 'flex';
+    }
 
+    function saveNote() {
+        const note = document.getElementById('noteArea').value;
+        if(note.trim()) localStorage.setItem(selectedDateKey, note);
+        else localStorage.removeItem(selectedDateKey);
+        closeModal();
         renderCalendar(currentYear, currentMonth);
-    </script>
+    }
+
+    function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
+    function changeMonth(s) { currentMonth += s; if(currentMonth>11){currentMonth=0;currentYear++;} else if(currentMonth<0){currentMonth=11;currentYear--;} renderCalendar(currentYear, currentMonth); }
+    
+    setInterval(() => { document.getElementById('liveTime').innerText = new Date().toLocaleTimeString('en-US', { hour12: true }); }, 1000);
+    renderCalendar(currentYear, currentMonth);
+</script>
 </body>
 </html>
