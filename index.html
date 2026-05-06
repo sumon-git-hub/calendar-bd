@@ -7,37 +7,33 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Hind Siliguri', sans-serif; background: #f8fafc; margin: 0; padding-bottom: 80px; }
+        body { font-family: 'Hind Siliguri', sans-serif; background: #f8fafc; margin: 0; padding-bottom: 20px; }
         .main-card { max-width: 450px; margin: 0 auto; background: white; min-height: 100vh; position: relative; }
         
-        /* Header Section */
         .header-section { background: linear-gradient(135deg, #059669 0%, #047857 100%); padding: 35px 20px 25px 20px; text-align: center; color: white; border-radius: 0 0 40px 40px; position: relative; }
         .clock-pill { background: rgba(255,255,255,0.15); display: inline-block; padding: 10px 30px; border-radius: 20px; font-size: 26px; margin-top: 10px; font-family: 'Poppins', sans-serif; font-weight: 700; border: 1px solid rgba(255,255,255,0.2); }
         
-        /* Calendar Grid */
         .eng-num { font-family: 'Poppins', sans-serif; }
         .day-cell { height: 75px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #ffffff; border-radius: 18px; border: 1px solid #f1f5f9; cursor: pointer; position: relative; transition: 0.2s; }
-        .day-cell:active { transform: scale(0.95); background: #f0fdf4; }
+        .day-cell:active { transform: scale(0.95); }
         .today-mark { background: #2563eb !important; color: white !important; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3); }
         .friday-text { color: #ef4444 !important; font-weight: 700; }
         
-        /* Modals */
-        #detailModal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 1000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); }
+        #detailModal, #adminModal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 1000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); }
         .modal-box { background: white; width: 100%; max-width: 400px; border-radius: 30px; padding: 25px; max-height: 85vh; overflow-y: auto; }
 
-        /* Note Items */
-        .note-item { display: flex; align-items: center; background: #f8fafc; padding: 12px; border-radius: 12px; margin-bottom: 8px; transition: 0.3s; }
-        .note-item.completed { opacity: 0.6; background: #f1f5f9; }
+        .note-item { display: flex; align-items: center; background: #f8fafc; padding: 12px; border-radius: 12px; margin-bottom: 8px; }
         .note-item.completed span { text-decoration: line-through; color: #94a3b8; }
-        .check-box { width: 20px; height: 20px; border: 2px solid #059669; border-radius: 6px; margin-right: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .check-box.checked { background: #059669; border-color: #059669; }
-        .check-box.checked::after { content: '✓'; color: white; font-size: 14px; font-weight: bold; }
+        .check-box { width: 20px; height: 20px; border: 2px solid #059669; border-radius: 6px; margin-right: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .check-box.checked { background: #059669; }
+        .check-box.checked::after { content: '✓'; color: white; font-size: 14px; }
     </style>
 </head>
 <body>
 
 <div class="main-card">
     <div class="header-section">
+        <div class="absolute top-6 right-6 text-white text-2xl cursor-pointer opacity-70" onclick="openAdminPanel()">⋮</div>
         <h1 class="text-xs font-bold font-[Poppins] opacity-60 uppercase tracking-[0.2em]">My Smart Calendar</h1>
         <div id="liveTime" class="clock-pill">00:00:00 AM</div>
         <div class="w-full mt-4 overflow-hidden whitespace-nowrap text-sm text-emerald-100">
@@ -46,142 +42,117 @@
     </div>
 
     <div class="pt-8 pb-6 px-4 text-center">
-        <div class="flex justify-between items-center px-6 mb-6">
+        <h2 id="topDayName" class="text-3xl font-bold text-slate-800 mb-1">...</h2>
+        <div class="flex justify-center gap-3 mb-6">
+            <div class="bg-emerald-50 px-4 py-2 rounded-2xl border border-emerald-100"><p id="topHijri" class="text-emerald-700 font-bold text-sm"></p></div>
+            <div class="bg-orange-50 px-4 py-2 rounded-2xl border border-orange-100"><p id="topBangla" class="text-orange-700 font-bold text-sm"></p></div>
+        </div>
+        
+        <div class="flex justify-between items-center px-6 mb-4">
             <button onclick="changeMonth(-1)" class="text-2xl text-slate-300">❮</button>
-            <div id="monthDisplay" class="text-2xl font-bold text-slate-800 eng-num"></div>
+            <div id="monthDisplay" class="text-2xl font-bold text-slate-800 eng-num uppercase"></div>
             <button onclick="changeMonth(1)" class="text-2xl text-slate-300">❯</button>
         </div>
 
         <div class="grid grid-cols-7 gap-3 px-2 mb-3 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
             <div>Sat</div><div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div class="text-red-400">Fri</div>
         </div>
-        <div id="calendarGrid" class="grid grid-cols-7 gap-3 px-2"></div>
+        <div id="calendarGrid" class="grid grid-cols-7 gap-3 px-2 pb-10"></div>
     </div>
 </div>
 
 <div id="detailModal" onclick="if(event.target==this) closeDetail()">
     <div class="modal-box">
         <div class="text-center mb-6">
-            <h2 id="modalDayTitle" class="text-3xl font-bold text-slate-800"></h2>
-            <p id="modalFullDate" class="text-slate-400 font-semibold eng-num mt-1"></p>
+            <h2 id="modalDayTitle" class="text-2xl font-bold text-slate-800"></h2>
+            <p id="modalFullDate" class="text-slate-400 font-semibold eng-num"></p>
         </div>
-
         <div class="mb-6">
-            <label class="block text-xs font-bold text-slate-400 uppercase mb-2">নোট লিখুন</label>
             <div class="flex gap-2">
-                <input type="text" id="noteInput" class="flex-1 bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 outline-none focus:border-emerald-500" placeholder="নতুন কাজ...">
+                <input type="text" id="noteInput" class="flex-1 bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 outline-none" placeholder="নোট লিখুন...">
                 <button onclick="addNote()" class="bg-emerald-600 text-white px-5 rounded-xl font-bold">যোগ</button>
             </div>
         </div>
-
         <div id="notesContainer"></div>
-        
-        <button onclick="closeDetail()" class="w-full mt-6 py-3 bg-slate-100 text-slate-600 rounded-2xl font-bold">বন্ধ করুন</button>
+        <button onclick="closeDetail()" class="w-full mt-6 py-3 bg-slate-100 text-slate-600 rounded-2xl font-bold">বন্ধ</button>
     </div>
 </div>
 
+<div id="adminModal"><div class="modal-box"><h2 class="text-xl font-bold mb-4">অ্যাডমিন প্যানেল</h2><textarea id="adminMsgInput" class="w-full border p-3 rounded-xl mb-4 h-20" placeholder="নতুন মেসেজ..."></textarea><div class="flex gap-2"><button onclick="saveAdminMsg()" class="flex-1 bg-emerald-600 text-white py-3 rounded-xl">সেভ</button><button onclick="closeAdminPanel()" class="flex-1 bg-gray-100 py-3 rounded-xl">বন্ধ</button></div></div></div>
+
 <script>
-    let currentYear = new Date().getFullYear();
-    let currentMonth = new Date().getMonth();
-    let selectedDateKey = ''; // Format: YYYY-MM-DD
+    let currentYear = new Date().getFullYear(), currentMonth = new Date().getMonth(), selectedDateKey = '';
     let notesData = JSON.parse(localStorage.getItem('smartNotes')) || {};
 
+    const hijriMonths = ["যিলক্বদ", "যিলহজ্ব", "মুহাররম", "সফর", "রবিউল আউয়াল", "রবিউস সানি", "জমাদিউল আউয়াল", "জমাদিউস সানি", "রজব", "শাবান", "রমজান", "শাওয়াল"];
+    const banglaMonths = ["বৈশাখ", "জ্যৈষ্ঠ", "আষাঢ়", "শ্রাবণ", "ভাদ্র", "আশ্বিন", "কার্তিক", "অগ্রহায়ণ", "পৌষ", "মাঘ", "ফালগুন", "চৈত্র"];
     const engMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const dayNamesBn = ["রবিবার", "সোমবার", "মঙ্গলবার", "বুধবার", "বৃহস্পতিবার", "শুক্রবার", "শনিবার"];
 
     function renderCalendar(year, month) {
-        const grid = document.getElementById('calendarGrid');
-        const realToday = new Date();
-        grid.innerHTML = '';
-        document.getElementById('monthDisplay').innerText = `${engMonths[month]} ${year}`;
-
-        const firstDay = new Date(year, month, 1).getDay();
-        const startPos = (firstDay + 1) % 7;
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-
+        const grid = document.getElementById('calendarGrid'), realToday = new Date();
+        grid.innerHTML = ''; document.getElementById('monthDisplay').innerText = `${engMonths[month]} ${year}`;
+        const firstDay = new Date(year, month, 1).getDay(), startPos = (firstDay + 1) % 7, daysInMonth = new Date(year, month + 1, 0).getDate();
         for (let i = 0; i < startPos; i++) grid.innerHTML += '<div></div>';
-
         for (let day = 1; day <= daysInMonth; day++) {
-            const dateObj = new Date(year, month, day);
-            const isToday = (dateObj.toDateString() === realToday.toDateString());
-            const dateKey = `${year}-${month}-${day}`;
-            const hasNotes = notesData[dateKey] && notesData[dateKey].length > 0;
+            const dateObj = new Date(year, month, day), isToday = (dateObj.toDateString() === realToday.toDateString());
+            const dateKey = `${year}-${month}-${day}`, hasNotes = notesData[dateKey] && notesData[dateKey].some(n => !n.done);
+            
+            let diffDays = Math.floor((dateObj - new Date(2026, 4, 3)) / 86400000);
+            let hDate = ((diffDays + 14) % 29 + 29) % 29 || 29, hM = (Math.floor((diffDays + 14) / 29) % 12 + 12) % 12;
+            let bDiff = Math.floor((dateObj - new Date(2026, 3, 14)) / 86400000) + 1, bMonthIdx = 0, bDate = bDiff;
+            const bLens = [31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30, 30]; while(bMonthIdx < 12 && bDate > bLens[bMonthIdx]) { bDate -= bLens[bMonthIdx]; bMonthIdx++; }
 
-            grid.innerHTML += `
-                <div class="day-cell ${isToday ? 'today-mark' : ''}" onclick="openDetail(${year}, ${month}, ${day})">
-                    <div class="text-xl font-bold eng-num ${dateObj.getDay() === 5 && !isToday ? 'friday-text' : ''}">${day}</div>
-                    ${hasNotes ? '<div class="absolute top-1 right-1 w-2 h-2 bg-yellow-400 rounded-full"></div>' : ''}
-                </div>
-            `;
+            grid.innerHTML += `<div class="day-cell ${isToday ? 'today-mark' : ''}" onclick="openDetail(${year}, ${month}, ${day})">
+                <div class="text-xl font-bold eng-num ${dateObj.getDay() === 5 && !isToday ? 'friday-text' : ''}">${day}</div>
+                <div class="text-[10px] font-bold opacity-50 eng-num">${hDate}/${bDate}</div>
+                ${hasNotes ? '<div class="absolute top-1 right-1 w-2 h-2 bg-yellow-400 rounded-full"></div>' : ''}
+            </div>`;
+
+            if(isToday) {
+                document.getElementById('topDayName').innerText = `আজ ${dayNamesBn[dateObj.getDay()]}`;
+                document.getElementById('topHijri').innerText = `🌙 ${hDate} ${hijriMonths[hM]}`;
+                document.getElementById('topBangla').innerText = `🌾 ${bDate} ${banglaMonths[bMonthIdx]}`;
+            }
         }
     }
 
     function openDetail(y, m, d) {
-        const dateObj = new Date(y, m, d);
         selectedDateKey = `${y}-${m}-${d}`;
-        document.getElementById('modalDayTitle').innerText = dayNamesBn[dateObj.getDay()];
+        const dt = new Date(y, m, d);
+        document.getElementById('modalDayTitle').innerText = dayNamesBn[dt.getDay()];
         document.getElementById('modalFullDate').innerText = `${d} ${engMonths[m]} ${y}`;
         document.getElementById('detailModal').style.display = 'flex';
         renderNotes();
     }
-
-    function closeDetail() {
-        document.getElementById('detailModal').style.display = 'none';
-        renderCalendar(currentYear, currentMonth);
-    }
-
+    function closeDetail() { document.getElementById('detailModal').style.display = 'none'; renderCalendar(currentYear, currentMonth); }
     function addNote() {
-        const input = document.getElementById('noteInput');
-        if (!input.value.trim()) return;
-        
+        const input = document.getElementById('noteInput'); if (!input.value.trim()) return;
         if (!notesData[selectedDateKey]) notesData[selectedDateKey] = [];
         notesData[selectedDateKey].push({ text: input.value, done: false, id: Date.now() });
-        
-        input.value = '';
-        saveAndRender();
+        input.value = ''; saveAndRender();
     }
-
     function toggleNote(id) {
-        const notes = notesData[selectedDateKey];
-        const note = notes.find(n => n.id === id);
+        const notes = notesData[selectedDateKey], note = notes.find(n => n.id === id);
         if (note) note.done = !note.done;
-        
-        // Sort: pending first, then completed
-        notesData[selectedDateKey].sort((a, b) => a.done - b.done);
-        saveAndRender();
+        notes.sort((a, b) => a.done - b.done); saveAndRender();
     }
-
-    function saveAndRender() {
-        localStorage.setItem('smartNotes', JSON.stringify(notesData));
-        renderNotes();
-    }
-
+    function saveAndRender() { localStorage.setItem('smartNotes', JSON.stringify(notesData)); renderNotes(); }
     function renderNotes() {
-        const container = document.getElementById('notesContainer');
-        container.innerHTML = '';
-        const notes = notesData[selectedDateKey] || [];
-
-        notes.forEach(note => {
-            container.innerHTML += `
-                <div class="note-item ${note.done ? 'completed' : ''}">
-                    <div class="check-box ${note.done ? 'checked' : ''}" onclick="toggleNote(${note.id})"></div>
-                    <span class="text-slate-700 font-semibold">${note.text}</span>
-                </div>
-            `;
+        const container = document.getElementById('notesContainer'); container.innerHTML = '';
+        (notesData[selectedDateKey] || []).forEach(n => {
+            container.innerHTML += `<div class="note-item ${n.done ? 'completed' : ''}">
+                <div class="check-box ${n.done ? 'checked' : ''}" onclick="toggleNote(${n.id})"></div>
+                <span class="text-slate-700 font-semibold">${n.text}</span>
+            </div>`;
         });
     }
 
-    function changeMonth(s) {
-        currentMonth += s;
-        if(currentMonth > 11) { currentMonth = 0; currentYear++; }
-        else if(currentMonth < 0) { currentMonth = 11; currentYear--; }
-        renderCalendar(currentYear, currentMonth);
-    }
-    
-    setInterval(() => {
-        document.getElementById('liveTime').innerText = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    }, 1000);
-
+    function openAdminPanel() { if(prompt("Pass:") === "1212") document.getElementById('adminModal').style.display = 'flex'; }
+    function closeAdminPanel() { document.getElementById('adminModal').style.display = 'none'; }
+    function saveAdminMsg() { const m = document.getElementById('adminMsgInput').value; if(m) document.getElementById('scrollText').innerText = m; closeAdminPanel(); }
+    function changeMonth(s) { currentMonth += s; if(currentMonth>11){currentMonth=0;currentYear++;} else if(currentMonth<0){currentMonth=11;currentYear--;} renderCalendar(currentYear, currentMonth); }
+    setInterval(() => { document.getElementById('liveTime').innerText = new Date().toLocaleTimeString('en-US', { hour12: true }); }, 1000);
     renderCalendar(currentYear, currentMonth);
 </script>
 </body>
