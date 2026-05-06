@@ -7,160 +7,173 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Hind Siliguri', sans-serif; background: #f8fafc; margin: 0; padding-bottom: 90px; }
-        .app-container { max-width: 450px; margin: 0 auto; background: white; min-height: 100vh; position: relative; }
+        body { font-family: 'Hind Siliguri', sans-serif; background: #f8fafc; margin: 0; padding-bottom: 80px; }
+        .main-card { max-width: 450px; margin: 0 auto; background: white; min-height: 100vh; position: relative; }
         
-        /* Premium Gradient Header */
-        .header { background: linear-gradient(135deg, #059669 0%, #047857 100%); padding: 40px 20px 30px; text-align: center; color: white; border-radius: 0 0 40px 40px; position: relative; box-shadow: 0 10px 25px rgba(5, 150, 105, 0.15); }
-        .clock { font-family: 'Poppins', sans-serif; font-size: 30px; font-weight: 700; margin: 8px 0; }
-        .scroll-box { background: rgba(0,0,0,0.1); padding: 4px 15px; border-radius: 50px; font-size: 13px; margin-top: 15px; overflow: hidden; }
+        /* Header & Clock */
+        .header-section { background: linear-gradient(135deg, #059669 0%, #047857 100%); padding: 35px 20px 25px 20px; text-align: center; color: white; border-radius: 0 0 40px 40px; position: relative; }
+        .clock-pill { background: rgba(255,255,255,0.15); display: inline-block; padding: 10px 30px; border-radius: 20px; font-size: 26px; margin-top: 10px; font-family: 'Poppins', sans-serif; font-weight: 700; border: 1px solid rgba(255,255,255,0.2); }
+        
+        /* Footer Navigation */
+        .footer-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 450px; background: white; display: flex; justify-content: space-around; align-items: center; padding: 12px 10px; border-top: 1px solid #f1f5f9; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #94a3b8; cursor: pointer; transition: 0.3s; width: 25%; }
+        .nav-item.active { color: #059669; }
+        .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; }
+        .nav-item span { font-size: 11px; font-weight: 600; }
 
-        /* Floating Nav */
-        .bottom-nav { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 400px; background: white; display: flex; justify-content: space-around; padding: 12px; border-radius: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.12); z-index: 1000; border: 1px solid #f1f5f9; }
-        .nav-link { color: #94a3b8; text-align: center; font-size: 10px; font-weight: 700; text-transform: uppercase; transition: 0.3s; width: 25%; }
-        .nav-link.active { color: #059669; }
-        .nav-link svg { width: 22px; height: 22px; margin: 0 auto 4px; }
-
-        /* Calendar Styling */
+        /* Calendar Grid */
         .eng-num { font-family: 'Poppins', sans-serif; }
-        .day-box { height: 70px; display: flex; flex-direction: column; items-center; justify-content: center; text-align: center; border-radius: 15px; background: #f8fafc; border: 1px solid #f1f5f9; transition: 0.2s; cursor: pointer; }
-        .is-today { background: #2563eb !important; color: white !important; box-shadow: 0 8px 15px rgba(37, 99, 235, 0.3); }
-        .tab-content { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
-        .tab-content.active { display: block; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .day-cell { height: 75px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #ffffff; border-radius: 18px; border: 1px solid #f1f5f9; cursor: pointer; position: relative; }
+        .today-mark { background: #2563eb !important; color: white !important; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3); }
+        .friday-text { color: #ef4444 !important; font-weight: 700; }
         
-        input { width: 100%; padding: 15px; border: 2px solid #f1f5f9; border-radius: 15px; outline: none; margin-bottom: 15px; }
-        input:focus { border-color: #059669; }
+        #detailModal, #adminModal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 1000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); }
+        .modal-box { background: white; width: 100%; max-width: 380px; border-radius: 30px; padding: 30px; }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <div class="header">
-        <div class="absolute top-6 right-8 text-2xl opacity-50 cursor-pointer" onclick="openAdmin()">⋮</div>
-        <p class="text-[10px] tracking-[0.3em] font-bold opacity-70 uppercase">My Smart Calendar</p>
-        <div id="clockDisplay" class="clock">00:00:00</div>
-        <div class="scroll-box"><marquee id="marq" scrollamount="4">স্বাগতম সুমন ভাই!</marquee></div>
+<div class="main-card">
+    <div class="header-section">
+        <div class="absolute top-6 right-6 text-white text-2xl cursor-pointer opacity-70" onclick="openAdminPanel()">⋮</div>
+        <h1 class="text-xs font-bold font-[Poppins] opacity-60 uppercase tracking-[0.2em]">My Smart Calendar</h1>
+        <div id="liveTime" class="clock-pill">00:00:00 AM</div>
+        <div class="w-full mt-4 overflow-hidden whitespace-nowrap text-sm text-emerald-100">
+            <marquee id="scrollText">My Smart Calendar-এ আপনাকে স্বাগতম!</marquee>
+        </div>
     </div>
 
-    <div id="cal" class="tab-content active">
-        <div class="text-center mb-8">
-            <h2 id="bnDayTitle" class="text-2xl font-bold text-slate-800">...</h2>
-            <div class="flex justify-center gap-2 mt-3">
-                <span id="hjInfo" class="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold"></span>
-                <span id="bnInfo" class="bg-orange-50 text-orange-700 px-3 py-1 rounded-full text-xs font-bold"></span>
-            </div>
+    <div class="pt-8 pb-6 px-4 text-center" id="calendar-content">
+        <h2 id="topDayName" class="text-3xl font-bold text-slate-800 mb-1">...</h2>
+        <p id="topEng" class="text-lg font-semibold text-slate-400 mb-5 eng-num"></p>
+        <div class="flex justify-center gap-3">
+            <div class="bg-emerald-50 px-4 py-2 rounded-2xl border border-emerald-100"><p id="topHijri" class="text-emerald-700 font-bold text-sm"></p></div>
+            <div class="bg-orange-50 px-4 py-2 rounded-2xl border border-orange-100"><p id="topBangla" class="text-orange-700 font-bold text-sm"></p></div>
+        </div>
+        
+        <div class="flex justify-between items-center px-6 mt-8 mb-4">
+            <button onclick="changeMonth(-1)" class="text-2xl text-slate-300 hover:text-emerald-600 transition">❮</button>
+            <div id="monthDisplay" class="text-2xl font-bold text-slate-800 eng-num"></div>
+            <button onclick="changeMonth(1)" class="text-2xl text-slate-300 hover:text-emerald-600 transition">❯</button>
         </div>
 
-        <div class="flex justify-between items-center px-4 mb-6">
-            <button onclick="changeMonth(-1)" class="text-2xl text-slate-300">❮</button>
-            <div id="monthYear" class="text-xl font-bold text-slate-700 eng-num uppercase"></div>
-            <button onclick="changeMonth(1)" class="text-2xl text-slate-300">❯</button>
-        </div>
-
-        <div class="grid grid-cols-7 gap-2 text-center text-[10px] font-bold text-slate-300 uppercase mb-3">
+        <div class="grid grid-cols-7 gap-3 px-2 mb-3 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
             <div>Sat</div><div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div class="text-red-400">Fri</div>
         </div>
-        <div id="calendarGrid" class="grid grid-cols-7 gap-2"></div>
+        <div id="calendarGrid" class="grid grid-cols-7 gap-3 px-2 pb-12"></div>
     </div>
 
-    <div id="age" class="tab-content p-8">
-        <h3 class="text-xl font-bold mb-6">বয়স ক্যালকুলেটর</h3>
-        <input type="date" id="dob" class="eng-num">
-        <button onclick="calcAge()" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-bold">হিসাব করুন</button>
-        <div id="ageOut" class="hidden mt-8 p-6 bg-slate-900 text-white rounded-3xl text-center">
-            <p class="text-xs opacity-50 mb-1 uppercase">বর্তমান বয়স</p>
-            <div id="ageVal" class="text-xl font-bold"></div>
-        </div>
-    </div>
-
-    <div id="hol" class="tab-content p-6">
-        <h3 class="text-xl font-bold mb-6">ছুটির তালিকা ২০২৬</h3>
-        <div class="space-y-3" id="hList"></div>
-    </div>
-
-    <div id="pro" class="tab-content p-8 text-center">
-        <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full mx-auto flex items-center justify-center text-3xl font-bold mb-4">S</div>
-        <h2 id="userName" class="text-xl font-bold">সুমন ভাই</h2>
-        <div class="mt-10 text-left">
-            <label class="text-[10px] font-bold text-slate-400 uppercase">নাম পরিবর্তন</label>
-            <input type="text" id="uInp" class="mt-2" placeholder="আপনার নাম...">
-            <button onclick="saveName()" class="w-full bg-slate-800 text-white py-4 rounded-2xl font-bold">আপডেট</button>
-        </div>
+    <div id="other-content" class="p-10 text-center text-slate-500 hidden">
+        <p>এই ফিচারটি শীঘ্রই আসছে...</p>
     </div>
 </div>
 
-<nav class="bottom-nav">
-    <div class="nav-link active" onclick="switchTab('cal', this)">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+<div class="footer-nav">
+    <div class="nav-item active" onclick="switchTab('calendar', this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
         <span>Calendar</span>
     </div>
-    <div class="nav-link" onclick="switchTab('age', this)">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-        <span>Age</span>
+    <div class="nav-item" onclick="switchTab('age', this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+        <span>Age Calc</span>
     </div>
-    <div class="nav-link" onclick="switchTab('hol', this)">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+    <div class="nav-item" onclick="switchTab('holiday', this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
         <span>Holiday</span>
     </div>
-    <div class="nav-link" onclick="switchTab('pro', this)">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+    <div class="nav-item" onclick="switchTab('profile', this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
         <span>Profile</span>
     </div>
-</nav>
+</div>
+
+<div id="adminModal"><div class="modal-box"><h2 class="text-xl font-bold mb-4">অ্যাডমিন প্যানেল</h2><textarea id="adminMsgInput" class="w-full border p-3 rounded-xl mb-4 h-20" placeholder="মেসেজ দিন..."></textarea><div class="flex gap-2"><button onclick="saveAdminMsg()" class="flex-1 bg-emerald-600 text-white py-3 rounded-xl">সেভ</button><button onclick="closeAdminPanel()" class="flex-1 bg-gray-100 py-3 rounded-xl">বন্ধ</button></div></div></div>
 
 <script>
-    let cY = new Date().getFullYear(), cM = new Date().getMonth();
-    const bMs = ["বৈশাখ", "জ্যৈষ্ঠ", "আষাঢ়", "শ্রাবণ", "ভাদ্র", "আশ্বিন", "কার্তিক", "অগ্রহায়ণ", "পৌষ", "মাঘ", "ফালগুন", "চৈত্র"];
-    const hMs = ["যিলক্বদ", "যিলহজ্ব", "মুহাররম", "সফর", "রবিউল আউয়াল", "রবিউস সানি", "জমাদিউল আউয়াল", "জমাদিউস সানি", "রজব", "শাবান", "রমজান", "শাওয়াল"];
-    const eMs = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    const dBs = ["রবিবার", "সোমবার", "মঙ্গলবার", "বুধবার", "বৃহস্পতিবার", "শুক্রবার", "শনিবার"];
+    let currentYear = new Date().getFullYear();
+    let currentMonth = new Date().getMonth();
 
-    function switchTab(t, e) {
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-        document.getElementById(t).classList.add('active');
-        e.classList.add('active');
-    }
-
-    function render(y, m) {
-        const g = document.getElementById('calendarGrid'), today = new Date();
-        g.innerHTML = ''; document.getElementById('monthYear').innerText = `${eMs[m]} ${y}`;
-        const first = (new Date(y, m, 1).getDay() + 1) % 7, total = new Date(y, m + 1, 0).getDate();
-        for(let i=0; i<first; i++) g.innerHTML += '<div></div>';
-        for(let d=1; d<=total; d++) {
-            const dt = new Date(y, m, d), isT = dt.toDateString() === today.toDateString();
-            let diff = Math.floor((dt - new Date(2026, 4, 3)) / 86400000);
-            let hD = ((diff + 14) % 29 + 29) % 29 || 29, hMi = (Math.floor((diff + 14) / 29) % 12 + 12) % 12;
-            let bDiff = Math.floor((dt - new Date(2026, 3, 14)) / 86400000) + 1, bMi = 0, bD = bDiff;
-            const bL = [31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30, 30]; while(bMi < 12 && bD > bL[bMi]) { bD -= bL[bMi]; bMi++; }
-            g.innerHTML += `<div class="day-box ${isT?'is-today':''}"><span class="text-lg font-bold eng-num ${dt.getDay()===5&&!isT?'text-red-500':''}">${d}</span><span class="text-[9px] opacity-40 font-bold eng-num">${hD}/${bD}</span></div>`;
-            if(isT) { document.getElementById('bnDayTitle').innerText = `আজ ${dBs[dt.getDay()]}`; document.getElementById('hjInfo').innerText = `🌙 ${hD} ${hMs[hMi]}`; document.getElementById('bnInfo').innerText = `🌾 ${bD} ${bMs[bMi]}`; }
+    function switchTab(tab, el) {
+        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+        el.classList.add('active');
+        
+        const content = document.getElementById('calendar-content');
+        const other = document.getElementById('other-content');
+        
+        if(tab === 'calendar') {
+            content.classList.remove('hidden');
+            other.classList.add('hidden');
+        } else {
+            content.classList.add('hidden');
+            other.classList.remove('hidden');
+            other.innerHTML = `<div class="py-20"><p class="text-2xl font-bold text-emerald-600">${tab.toUpperCase()}</p><p>এই বিভাগটি খুব শীঘ্রই যোগ করা হবে।</p></div>`;
         }
     }
 
-    function calcAge() {
-        const v = document.getElementById('dob').value; if(!v) return;
-        const b = new Date(v), n = new Date();
-        let y = n.getFullYear()-b.getFullYear(), m = n.getMonth()-b.getMonth(), d = n.getDate()-b.getDate();
-        if(d<0) { m--; d+=new Date(n.getFullYear(), n.getMonth(), 0).getDate(); }
-        if(m<0) { y--; m+=12; }
-        document.getElementById('ageOut').classList.remove('hidden');
-        document.getElementById('ageVal').innerText = `${y} বছর, ${m} মাস, ${d} দিন`;
+    function openAdminPanel() {
+        if(prompt("পাসওয়ার্ড দিন:") === "1212") document.getElementById('adminModal').style.display = 'flex';
+        else alert("ভুল পাসওয়ার্ড!");
+    }
+    function closeAdminPanel() { document.getElementById('adminModal').style.display = 'none'; }
+    function saveAdminMsg() {
+        const msg = document.getElementById('adminMsgInput').value;
+        if(msg) document.getElementById('scrollText').innerText = msg;
+        closeAdminPanel();
     }
 
-    function saveName() { const n = document.getElementById('uInp').value; if(n) { document.getElementById('userName').innerText = n; localStorage.setItem('u', n); } }
-    function openAdmin() { const p = prompt("Pass:"); if(p==="1212") { const m = prompt("New Message:"); if(m) { document.getElementById('marq').innerText = m; localStorage.setItem('m', m); } } }
-    function changeMonth(s) { cM += s; if(cM>11){cM=0;cY++;} else if(cM<0){cM=11;cY--;} render(cY, cM); }
+    const hijriMonths = ["যিলক্বদ", "যিলহজ্ব", "মুহাররম", "সফর", "রবিউল আউয়াল", "রবিউস সানি", "জমাদিউল আউয়াল", "জমাদিউস সানি", "রজব", "শাবান", "রমজান", "শাওয়াল"];
+    const banglaMonths = ["বৈশাখ", "জ্যৈষ্ঠ", "আষাঢ়", "শ্রাবণ", "ভাদ্র", "আশ্বিন", "কার্তিক", "অগ্রহায়ণ", "পৌষ", "মাঘ", "ফালগুন", "চৈত্র"];
+    const engMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const dayNamesBn = ["রবিবার", "সোমবার", "মঙ্গলবার", "বুধবার", "বৃহস্পতিবার", "শুক্রবার", "শনিবার"];
 
-    const hl = [{n:"শহীদ দিবস", d:"২১ ফেব্রুয়ারি"}, {n:"স্বাধীনতা দিবস", d:"২৬ মার্চ"}, {n:"ঈদুল ফিতর", d:"২০ মার্চ"}, {n:"পহেলা বৈশাখ", d:"১৪ এপ্রিল"}];
-    hl.forEach(x => { document.getElementById('hList').innerHTML += `<div class="bg-slate-50 p-4 rounded-2xl flex justify-between"><b>${x.n}</b><span class="text-xs opacity-50">${x.d}</span></div>`; });
+    function renderCalendar(year, month) {
+        const grid = document.getElementById('calendarGrid');
+        const realToday = new Date();
+        grid.innerHTML = '';
+        document.getElementById('monthDisplay').innerText = `${engMonths[month]} ${year}`;
 
-    const su = localStorage.getItem('u'), sm = localStorage.getItem('m');
-    if(su) document.getElementById('userName').innerText = su; if(sm) document.getElementById('marq').innerText = sm;
-    setInterval(() => { document.getElementById('clockDisplay').innerText = new Date().toLocaleTimeString('en-US', {hour12:false}); }, 1000);
-    render(cY, cM);
+        const firstDay = new Date(year, month, 1).getDay();
+        const startPos = (firstDay + 1) % 7;
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        for (let i = 0; i < startPos; i++) grid.innerHTML += '<div></div>';
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateObj = new Date(year, month, day);
+            const isToday = (dateObj.toDateString() === realToday.toDateString());
+            
+            let diffDays = Math.floor((dateObj - new Date(2026, 4, 3)) / 86400000);
+            let hDate = ((diffDays + 14) % 29 + 29) % 29 || 29;
+            let hM = (Math.floor((diffDays + 14) / 29) % 12 + 12) % 12;
+
+            let bDiff = Math.floor((dateObj - new Date(2026, 3, 14)) / 86400000) + 1;
+            let bMonthIdx = 0, bDate = bDiff;
+            const bLens = [31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30, 30]; 
+            while(bMonthIdx < 12 && bDate > bLens[bMonthIdx]) { bDate -= bLens[bMonthIdx]; bMonthIdx++; }
+
+            grid.innerHTML += `
+                <div class="day-cell ${isToday ? 'today-mark' : ''}">
+                    <div class="text-xl font-bold eng-num ${dateObj.getDay() === 5 && !isToday ? 'friday-text' : ''}">${day}</div>
+                    <div class="text-[10px] font-bold opacity-50 eng-num">${hDate}/${bDate}</div>
+                </div>
+            `;
+
+            if(isToday) {
+                document.getElementById('topDayName').innerText = `আজ ${dayNamesBn[dateObj.getDay()]}`;
+                document.getElementById('topEng').innerText = `${day} ${engMonths[month]} ${year} AD`;
+                document.getElementById('topHijri').innerText = `🌙 ${hDate} ${hijriMonths[hM]} 1447`;
+                document.getElementById('topBangla').innerText = `🌾 ${bDate} ${banglaMonths[bMonthIdx]} 1433`;
+            }
+        }
+    }
+
+    function changeMonth(s) { currentMonth += s; if(currentMonth>11){currentMonth=0;currentYear++;} else if(currentMonth<0){currentMonth=11;currentYear--;} renderCalendar(currentYear, currentMonth); }
+    
+    setInterval(() => {
+        document.getElementById('liveTime').innerText = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }, 1000);
+
+    renderCalendar(currentYear, currentMonth);
 </script>
 </body>
 </html>
