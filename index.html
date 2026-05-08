@@ -10,21 +10,24 @@
         body { font-family: 'Hind Siliguri', sans-serif; background: #f8fafc; margin: 0; padding-bottom: 80px; }
         .main-card { max-width: 450px; margin: 0 auto; background: white; min-height: 100vh; position: relative; }
         
+        /* Header & Clock */
         .header-section { background: linear-gradient(135deg, #059669 0%, #047857 100%); padding: 35px 20px 25px 20px; text-align: center; color: white; border-radius: 0 0 40px 40px; position: relative; }
         .clock-pill { background: rgba(255,255,255,0.15); display: inline-block; padding: 10px 30px; border-radius: 20px; font-size: 26px; margin-top: 10px; font-family: 'Poppins', sans-serif; font-weight: 700; border: 1px solid rgba(255,255,255,0.2); }
         
+        /* Footer Navigation */
         .footer-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 450px; background: white; display: flex; justify-content: space-around; align-items: center; padding: 12px 10px; border-top: 1px solid #f1f5f9; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); z-index: 100; }
         .nav-item { display: flex; flex-direction: column; align-items: center; color: #94a3b8; cursor: pointer; transition: 0.3s; width: 25%; }
         .nav-item.active { color: #059669; }
         .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; }
         .nav-item span { font-size: 11px; font-weight: 600; }
 
+        /* Calendar Grid */
         .eng-num { font-family: 'Poppins', sans-serif; }
         .day-cell { height: 75px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #ffffff; border-radius: 18px; border: 1px solid #f1f5f9; cursor: pointer; position: relative; }
         .today-mark { background: #2563eb !important; color: white !important; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3); }
         .friday-text { color: #ef4444 !important; font-weight: 700; }
         
-        #detailModal, #adminModal, #imageModal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 1000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); }
+        #detailModal, #adminModal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 1000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); }
         .modal-box { background: white; width: 100%; max-width: 380px; border-radius: 30px; padding: 30px; max-height: 85vh; overflow-y: auto; }
 
         .note-item { display: flex; align-items: center; gap: 10px; background: #f1f5f9; padding: 10px; border-radius: 12px; margin-bottom: 8px; cursor: pointer; }
@@ -32,7 +35,10 @@
         .check-box { width: 18px; height: 18px; border: 2px solid #059669; border-radius: 4px; position: relative; flex-shrink: 0; }
         .note-item.done .check-box::after { content: '✓'; position: absolute; top: -4px; left: 1px; color: #059669; font-weight: bold; }
         
-        .holiday-img { width: 100%; border-radius: 15px; margin-bottom: 15px; border: 1px solid #e2e8f0; cursor: pointer; }
+        /* Holiday List Style */
+        .holiday-list { text-align: left; background: #f8fafc; border-radius: 20px; padding: 15px; margin-bottom: 10px; border: 1px solid #e2e8f0; }
+        .holiday-date { color: #059669; font-weight: bold; font-family: 'Poppins', sans-serif; font-size: 14px; }
+        .holiday-name { color: #1e293b; font-weight: 600; display: block; }
     </style>
 </head>
 <body>
@@ -54,22 +60,38 @@
             <div class="bg-emerald-50 px-4 py-2 rounded-2xl border border-emerald-100"><p id="topHijri" class="text-emerald-700 font-bold text-sm"></p></div>
             <div class="bg-orange-50 px-4 py-2 rounded-2xl border border-orange-100"><p id="topBangla" class="text-orange-700 font-bold text-sm"></p></div>
         </div>
+        
         <div class="flex justify-between items-center px-6 mt-8 mb-4">
             <button onclick="changeMonth(-1)" class="text-2xl text-slate-300">❮</button>
             <div id="monthDisplay" class="text-2xl font-bold text-slate-800 eng-num"></div>
             <button onclick="changeMonth(1)" class="text-2xl text-slate-300">❯</button>
         </div>
-        <div class="grid grid-cols-7 gap-3 px-2 mb-3 text-center text-[10px] font-bold text-slate-400 uppercase">
+
+        <div class="grid grid-cols-7 gap-3 px-2 mb-3 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
             <div>Sat</div><div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div class="text-red-400">Fri</div>
         </div>
         <div id="calendarGrid" class="grid grid-cols-7 gap-3 px-2 pb-12"></div>
     </div>
 
     <div id="holiday-content" class="p-6 hidden">
-        <h2 class="text-2xl font-bold text-center text-slate-800 mb-2">সরকারি ছুটির তালিকা ২০২৬</h2>
-        <p class="text-center text-slate-400 text-sm mb-6">ছবিতে ক্লিক করলে বড় করে দেখা যাবে</p>
-        <img src="https://via.placeholder.com/400x600?text=Holiday+List+1" class="holiday-img" onclick="viewImg(this.src)">
-        <img src="https://via.placeholder.com/400x600?text=Holiday+List+2" class="holiday-img" onclick="viewImg(this.src)">
+        <h2 class="text-2xl font-bold text-center text-slate-800 mb-6">সরকারি ছুটির তালিকা ২০২৬</h2>
+        
+        <div id="holidayListContainer" class="space-y-3">
+            <div class="holiday-list"><span class="holiday-date">26 Feb</span> <span class="holiday-name">শবে বরাত</span></div>
+            <div class="holiday-list"><span class="holiday-date">17 Mar</span> <span class="holiday-name">বঙ্গবন্ধুর জন্মদিন</span></div>
+            <div class="holiday-list"><span class="holiday-date">20 Mar</span> <span class="holiday-name">শবে কদর</span></div>
+            <div class="holiday-list"><span class="holiday-date">21-23 Mar</span> <span class="holiday-name">ঈদুল ফিতর</span></div>
+            <div class="holiday-list"><span class="holiday-date">26 Mar</span> <span class="holiday-name">স্বাধীনতা দিবস</span></div>
+            <div class="holiday-list"><span class="holiday-date">14 Apr</span> <span class="holiday-name">বাংলা নববর্ষ</span></div>
+            <div class="holiday-list"><span class="holiday-date">01 May</span> <span class="holiday-name">মে দিবস</span></div>
+            <div class="holiday-list"><span class="holiday-date">27-29 May</span> <span class="holiday-name">ঈদুল আযহা</span></div>
+            <div class="holiday-list"><span class="holiday-date">28 Jul</span> <span class="holiday-name">আশুরা</span></div>
+            <div class="holiday-list"><span class="holiday-date">16 Aug</span> <span class="holiday-name">জন্মাষ্টমী</span></div>
+            <div class="holiday-list"><span class="holiday-date">27 Aug</span> <span class="holiday-name">ঈদে মিলাদুন্নবী (সাঃ)</span></div>
+            <div class="holiday-list"><span class="holiday-date">20-21 Oct</span> <span class="holiday-name">দুর্গাপূজা (বিজয়ী দশমী)</span></div>
+            <div class="holiday-list"><span class="holiday-date">16 Dec</span> <span class="holiday-name">বিজয় দিবস</span></div>
+            <div class="holiday-list"><span class="holiday-date">25 Dec</span> <span class="holiday-name">যিশু খ্রীষ্টের জন্মদিন</span></div>
+        </div>
     </div>
 
     <div id="other-content" class="p-10 text-center text-slate-500 hidden"></div>
@@ -98,7 +120,7 @@
     <div class="modal-box">
         <h2 id="popDay" class="text-2xl font-bold text-slate-800"></h2>
         <p id="popDate" class="text-slate-500 mb-2 eng-num"></p>
-        <div id="popExtra" class="space-y-1 mb-6 text-sm font-bold">
+        <div class="flex flex-col gap-1 mb-6 text-sm font-bold">
             <div id="popHijri" class="text-emerald-700 bg-emerald-50 p-2 rounded-lg border border-emerald-100"></div>
             <div id="popBangla" class="text-orange-700 bg-orange-50 p-2 rounded-lg border border-orange-100"></div>
         </div>
@@ -107,11 +129,9 @@
             <button onclick="addNote()" class="w-full bg-emerald-600 text-white py-3 rounded-xl mt-2 font-bold">যোগ করুন</button>
         </div>
         <div id="noteList"></div>
-        <button onclick="closeModal('detailModal')" class="w-full bg-slate-100 py-3 rounded-xl mt-4 text-slate-600 font-bold">বন্ধ</button>
+        <button onclick="closeModal()" class="w-full bg-slate-100 py-3 rounded-xl mt-4 text-slate-600 font-bold">বন্ধ</button>
     </div>
 </div>
-
-<div id="imageModal" onclick="this.style.display='none'"><img id="fullImg" class="max-w-full max-h-full p-4"></div>
 
 <script>
     let currentYear = new Date().getFullYear(), currentMonth = new Date().getMonth(), selectedDateKey = null;
@@ -164,8 +184,7 @@
         showNotes();
     }
 
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-    function viewImg(src) { document.getElementById('fullImg').src = src; document.getElementById('imageModal').style.display = 'flex'; }
+    function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
 
     function switchTab(tab, el) {
         document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
