@@ -28,7 +28,13 @@
         .friday-text { color: #ef4444 !important; font-weight: 700; }
         
         #detailModal, #adminModal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 1000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); }
-        .modal-box { background: white; width: 100%; max-width: 380px; border-radius: 30px; padding: 30px; }
+        .modal-box { background: white; width: 100%; max-width: 380px; border-radius: 30px; padding: 30px; max-height: 80vh; overflow-y: auto; }
+
+        /* Note Items */
+        .note-item { display: flex; align-items: center; gap: 10px; background: #f1f5f9; padding: 10px; border-radius: 12px; margin-bottom: 8px; cursor: pointer; }
+        .note-item.done { text-decoration: line-through; opacity: 0.6; }
+        .check-box { width: 18px; height: 18px; border: 2px solid #059669; border-radius: 4px; position: relative; }
+        .note-item.done .check-box::after { content: '✓'; position: absolute; top: -4px; left: 1px; color: #059669; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -89,25 +95,34 @@
 
 <div id="adminModal"><div class="modal-box"><h2 class="text-xl font-bold mb-4">অ্যাডমিন প্যানেল</h2><textarea id="adminMsgInput" class="w-full border p-3 rounded-xl mb-4 h-20" placeholder="মেসেজ দিন..."></textarea><div class="flex gap-2"><button onclick="saveAdminMsg()" class="flex-1 bg-emerald-600 text-white py-3 rounded-xl">সেভ</button><button onclick="closeAdminPanel()" class="flex-1 bg-gray-100 py-3 rounded-xl">বন্ধ</button></div></div></div>
 
+<div id="detailModal">
+    <div class="modal-box">
+        <h2 id="popDay" class="text-2xl font-bold text-slate-800"></h2>
+        <p id="popDate" class="text-slate-500 mb-4 eng-num"></p>
+        
+        <div class="mb-4">
+            <input type="text" id="noteInput" class="w-full border p-3 rounded-xl outline-none" placeholder="নোট লিখুন...">
+            <button onclick="addNote()" class="w-full bg-emerald-600 text-white py-2 rounded-xl mt-2 font-bold">যোগ করুন</button>
+        </div>
+        
+        <div id="noteList"></div>
+        <button onclick="closeModal()" class="w-full bg-slate-100 py-3 rounded-xl mt-4 text-slate-600 font-bold">বন্ধ</button>
+    </div>
+</div>
+
 <script>
     let currentYear = new Date().getFullYear();
     let currentMonth = new Date().getMonth();
+    let selectedDate = null;
+    let allNotes = JSON.parse(localStorage.getItem('my_calendar_notes')) || {};
 
     function switchTab(tab, el) {
         document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
         el.classList.add('active');
-        
         const content = document.getElementById('calendar-content');
         const other = document.getElementById('other-content');
-        
-        if(tab === 'calendar') {
-            content.classList.remove('hidden');
-            other.classList.add('hidden');
-        } else {
-            content.classList.add('hidden');
-            other.classList.remove('hidden');
-            other.innerHTML = `<div class="py-20"><p class="text-2xl font-bold text-emerald-600">${tab.toUpperCase()}</p><p>এই বিভাগটি খুব শীঘ্রই যোগ করা হবে।</p></div>`;
-        }
+        if(tab === 'calendar') { content.classList.remove('hidden'); other.classList.add('hidden'); } 
+        else { content.classList.add('hidden'); other.classList.remove('hidden'); other.innerHTML = `<div class="py-20"><p class="text-2xl font-bold text-emerald-600">${tab.toUpperCase()}</p><p>এই বিভাগটি খুব শীঘ্রই যোগ করা হবে।</p></div>`; }
     }
 
     function openAdminPanel() {
@@ -131,7 +146,6 @@
         const realToday = new Date();
         grid.innerHTML = '';
         document.getElementById('monthDisplay').innerText = `${engMonths[month]} ${year}`;
-
         const firstDay = new Date(year, month, 1).getDay();
         const startPos = (firstDay + 1) % 7;
         const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -145,18 +159,17 @@
             let diffDays = Math.floor((dateObj - new Date(2026, 4, 3)) / 86400000);
             let hDate = ((diffDays + 14) % 29 + 29) % 29 || 29;
             let hM = (Math.floor((diffDays + 14) / 29) % 12 + 12) % 12;
-
             let bDiff = Math.floor((dateObj - new Date(2026, 3, 14)) / 86400000) + 1;
             let bMonthIdx = 0, bDate = bDiff;
             const bLens = [31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30, 30]; 
             while(bMonthIdx < 12 && bDate > bLens[bMonthIdx]) { bDate -= bLens[bMonthIdx]; bMonthIdx++; }
 
-            grid.innerHTML += `
-                <div class="day-cell ${isToday ? 'today-mark' : ''}">
-                    <div class="text-xl font-bold eng-num ${dateObj.getDay() === 5 && !isToday ? 'friday-text' : ''}">${day}</div>
-                    <div class="text-[10px] font-bold opacity-50 eng-num">${hDate}/${bDate}</div>
-                </div>
-            `;
+            const cell = document.createElement('div');
+            cell.className = `day-cell ${isToday ? 'today-mark' : ''}`;
+            cell.innerHTML = `<div class="text-xl font-bold eng-num ${dateObj.getDay() === 5 && !isToday ? 'friday-text' : ''}">${day}</div>
+                              <div class="text-[10px] font-bold opacity-50 eng-num">${hDate}/${bDate}</div>`;
+            cell.onclick = () => openPop(day, month, year, dayNamesBn[dateObj.getDay()]);
+            grid.appendChild(cell);
 
             if(isToday) {
                 document.getElementById('topDayName').innerText = `আজ ${dayNamesBn[dateObj.getDay()]}`;
@@ -167,12 +180,44 @@
         }
     }
 
-    function changeMonth(s) { currentMonth += s; if(currentMonth>11){currentMonth=0;currentYear++;} else if(currentMonth<0){currentMonth=11;currentYear--;} renderCalendar(currentYear, currentMonth); }
-    
-    setInterval(() => {
-        document.getElementById('liveTime').innerText = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    }, 1000);
+    function openPop(d, m, y, dayName) {
+        selectedDate = `${d}-${m}-${y}`;
+        document.getElementById('popDay').innerText = dayName;
+        document.getElementById('popDate').innerText = `${d} ${engMonths[m]} ${y}`;
+        document.getElementById('detailModal').style.display = 'flex';
+        showNotes();
+    }
+    function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
 
+    function addNote() {
+        const input = document.getElementById('noteInput');
+        if(!input.value) return;
+        if(!allNotes[selectedDate]) allNotes[selectedDate] = [];
+        allNotes[selectedDate].push({ text: input.value, done: false });
+        input.value = '';
+        saveNotes();
+        showNotes();
+    }
+    function toggleNote(idx) {
+        allNotes[selectedDate][idx].done = !allNotes[selectedDate][idx].done;
+        saveNotes();
+        showNotes();
+    }
+    function showNotes() {
+        const list = document.getElementById('noteList');
+        list.innerHTML = '';
+        const notes = allNotes[selectedDate] || [];
+        notes.forEach((n, i) => {
+            list.innerHTML += `<div class="note-item ${n.done ? 'done' : ''}" onclick="toggleNote(${i})">
+                <div class="check-box"></div>
+                <span>${n.text}</span>
+            </div>`;
+        });
+    }
+    function saveNotes() { localStorage.setItem('my_calendar_notes', JSON.stringify(allNotes)); }
+
+    function changeMonth(s) { currentMonth += s; if(currentMonth>11){currentMonth=0;currentYear++;} else if(currentMonth<0){currentMonth=11;currentYear--;} renderCalendar(currentYear, currentMonth); }
+    setInterval(() => { document.getElementById('liveTime').innerText = new Date().toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' }); }, 1000);
     renderCalendar(currentYear, currentMonth);
 </script>
 </body>
